@@ -4,380 +4,534 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FinanzKlar – Schweizer Finanz-Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #d62b2b;
-    --primary-dark: #a01f1f;
-    --accent: #2e8b57;
-    --warn: #c0392b;
-    --bg: #f5f5f5;
-    --card: #ffffff;
-    --text: #1e293b;
-    --muted: #64748b;
-    --border: #e2e8f0;
-    --radius: 14px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+:root {
+  --red:       #e63946;
+  --red-light: #fff0f1;
+  --red-mid:   #ffd6d9;
+  --dark:      #0f172a;
+  --body:      #334155;
+  --muted:     #94a3b8;
+  --border:    #e8edf3;
+  --bg:        #f8fafc;
+  --card:      #ffffff;
+  --green:     #059669;
+  --green-bg:  #ecfdf5;
+  --yellow:    #d97706;
+  --yellow-bg: #fffbeb;
+  --radius-sm: 10px;
+  --radius:    16px;
+  --radius-lg: 24px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow:    0 4px 16px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.04);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.04);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--body); line-height: 1.6; -webkit-font-smoothing: antialiased; }
 
-  header {
-    background: linear-gradient(135deg, #c0392b, #7b0000);
-    color: #fff; padding: 20px 24px; text-align: center;
-  }
-  header h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
-  header p { opacity: .85; font-size: .95rem; margin-top: 5px; }
+/* ── HERO HEADER ────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1a1020 100%);
+  padding: 56px 24px 72px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(230,57,70,.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.75); font-size: .75rem; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 99px; margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem); font-weight: 800;
+  color: #fff; letter-spacing: -.03em; line-height: 1.1;
+  margin-bottom: 14px;
+}
+.hero h1 span { color: var(--red); }
+.hero p { color: rgba(255,255,255,.55); font-size: 1.05rem; font-weight: 400; max-width: 480px; margin: 0 auto; }
 
-  .ad-banner { display: none; }
+/* ── NAV PILLS ──────────────────────────────────── */
+.nav-wrap {
+  display: flex; justify-content: center;
+  padding: 0 16px;
+  margin-top: -28px; margin-bottom: 36px;
+  position: relative; z-index: 10;
+}
+.nav-pills {
+  display: inline-flex; gap: 6px;
+  background: var(--card); border-radius: 99px;
+  padding: 6px; box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  overflow-x: auto; max-width: 100%;
+}
+.nav-pills::-webkit-scrollbar { display: none; }
+.nav-pills button {
+  border: none; background: none; cursor: pointer;
+  padding: 9px 18px; border-radius: 99px;
+  font-family: inherit; font-size: .85rem; font-weight: 600;
+  color: var(--muted); white-space: nowrap;
+  transition: all .2s ease;
+}
+.nav-pills button:hover { color: var(--body); background: var(--bg); }
+.nav-pills button.active {
+  background: var(--red); color: #fff;
+  box-shadow: 0 2px 8px rgba(230,57,70,.35);
+}
 
-  nav {
-    background: #fff; border-bottom: 2px solid var(--border);
-    display: flex; overflow-x: auto;
-  }
-  nav button {
-    flex: 1; min-width: 110px; padding: 14px 8px;
-    border: none; background: none; cursor: pointer;
-    font-size: .85rem; font-weight: 600; color: var(--muted);
-    transition: all .2s; white-space: nowrap;
-    border-bottom: 3px solid transparent;
-  }
-  nav button.active { color: var(--primary); border-bottom-color: var(--primary); background: #fff5f5; }
-  nav button:hover:not(.active) { background: #f8fafc; color: var(--text); }
+/* ── LAYOUT ─────────────────────────────────────── */
+main { max-width: 740px; margin: 0 auto; padding: 0 20px 60px; }
+.tool { display: none; }
+.tool.active { display: block; }
 
-  main { max-width: 820px; margin: 28px auto; padding: 0 16px 40px; }
+/* ── CARD ───────────────────────────────────────── */
+.card {
+  background: var(--card); border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow); padding: 36px; margin-bottom: 20px;
+}
+.card-header { margin-bottom: 28px; }
+.card-header h2 {
+  font-size: 1.25rem; font-weight: 700; color: var(--dark);
+  letter-spacing: -.02em; display: flex; align-items: center; gap: 10px;
+}
+.card-header p { color: var(--muted); font-size: .875rem; margin-top: 4px; }
 
-  .tool { display: none; }
-  .tool.active { display: block; }
+/* ── INFO BOX ───────────────────────────────────── */
+.info-box {
+  background: var(--yellow-bg); border: 1px solid #fde68a;
+  border-radius: var(--radius-sm); padding: 12px 16px;
+  font-size: .82rem; color: var(--yellow); margin-bottom: 24px;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.info-box::before { content: 'ℹ️'; flex-shrink: 0; margin-top: 1px; }
 
-  .card {
-    background: var(--card); border-radius: var(--radius);
-    box-shadow: 0 2px 12px rgba(0,0,0,.07);
-    padding: 28px; margin-bottom: 20px;
-  }
-  .card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
-  .card .subtitle { font-size: .82rem; color: var(--muted); margin-bottom: 18px; }
+/* ── FORM GRID ──────────────────────────────────── */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:540px) { .grid { grid-template-columns: 1fr; } }
 
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media(max-width:560px) { .grid { grid-template-columns: 1fr; } }
+.field label {
+  display: block; font-size: .78rem; font-weight: 600;
+  color: var(--muted); letter-spacing: .04em; text-transform: uppercase;
+  margin-bottom: 7px;
+}
+.field input, .field select {
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-family: inherit; font-size: .95rem; color: var(--dark);
+  background: var(--bg); transition: border-color .15s, box-shadow .15s;
+  appearance: none;
+}
+.field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.field input:focus, .field select:focus {
+  outline: none; border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(230,57,70,.1);
+  background: #fff;
+}
 
-  label { display: block; font-size: .82rem; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
-  input[type=number], select {
-    width: 100%; padding: 10px 12px;
-    border: 1.5px solid var(--border); border-radius: 8px;
-    font-size: .95rem; transition: border .2s; background: #fafbfc;
-  }
-  input[type=number]:focus, select:focus { outline: none; border-color: var(--primary); background: #fff; }
+/* ── SLIDER ─────────────────────────────────────── */
+.slider-field label {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: .78rem; font-weight: 600; color: var(--muted);
+  letter-spacing: .04em; text-transform: uppercase; margin-bottom: 10px;
+}
+.slider-field label span { color: var(--dark); font-size: .95rem; text-transform: none; letter-spacing: 0; font-weight: 700; }
+input[type=range] {
+  width: 100%; height: 4px; accent-color: var(--red);
+  border-radius: 99px; cursor: pointer;
+}
 
-  .slider-wrap { display: flex; align-items: center; gap: 12px; }
-  input[type=range] { flex: 1; accent-color: var(--primary); }
+/* ── BUTTON ─────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--red); color: #fff; border: none;
+  padding: 13px 28px; border-radius: var(--radius-sm);
+  font-family: inherit; font-size: .95rem; font-weight: 600;
+  cursor: pointer; margin-top: 24px;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  box-shadow: 0 2px 8px rgba(230,57,70,.3);
+}
+.btn:hover { background: #c1121f; box-shadow: 0 4px 16px rgba(230,57,70,.4); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn::after { content: '→'; font-size: 1rem; }
 
-  .btn {
-    background: var(--primary); color: #fff; border: none;
-    padding: 12px 28px; border-radius: 8px; font-size: 1rem;
-    font-weight: 700; cursor: pointer; margin-top: 18px; transition: background .2s;
-  }
-  .btn:hover { background: var(--primary-dark); }
+/* ── RESULT WRAPPER ─────────────────────────────── */
+.result { display: none; margin-top: 28px; }
+.result.show { display: block; }
 
-  .result {
-    background: linear-gradient(135deg, #f9fbe7, #f1f8e9);
-    border: 1.5px solid #aed581; border-radius: 10px;
-    padding: 20px 24px; margin-top: 18px; display: none;
-  }
-  .result.show { display: block; }
+/* ── LOHNAUSWEIS ────────────────────────────────── */
+.la-card {
+  border-radius: var(--radius); border: 1px solid var(--border);
+  overflow: hidden; margin-bottom: 16px;
+}
+.la-head {
+  background: var(--dark); color: #fff;
+  padding: 14px 20px; font-weight: 700; font-size: .9rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.la-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 20px; border-bottom: 1px solid var(--border);
+  font-size: .9rem;
+}
+.la-row:last-child { border-bottom: none; }
+.la-row:nth-child(even) { background: var(--bg); }
+.la-row.section-label { background: none; padding: 8px 20px 4px; }
+.la-row.section-label span { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.la-row.indent span:first-child { padding-left: 16px; color: var(--body); }
+.la-row .deduct { color: var(--red); font-weight: 600; }
+.la-row.total {
+  background: var(--green-bg); border-top: 2px solid #a7f3d0;
+  padding: 14px 20px;
+}
+.la-row.total span:first-child { font-weight: 700; color: var(--dark); }
+.la-row.total span:last-child { font-weight: 800; color: var(--green); font-size: 1.1rem; }
 
-  .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 10px; }
-  .result-item { text-align: center; }
-  .result-item .val { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
-  .result-item .lbl { font-size: .78rem; color: var(--muted); margin-top: 2px; }
-  .result-item.ok .val { color: var(--accent); }
-  .result-item.warn .val { color: var(--warn); }
+/* ── STEUER BOX ─────────────────────────────────── */
+.st-card {
+  border-radius: var(--radius); border: 1px solid #fde68a;
+  overflow: hidden; margin-bottom: 16px;
+}
+.st-head {
+  background: var(--yellow-bg); padding: 14px 20px;
+  font-weight: 700; font-size: .9rem; color: var(--yellow);
+  display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #fde68a;
+}
+.st-sub { padding: 8px 20px; font-size: .78rem; color: var(--muted); background: #fff; border-bottom: 1px solid var(--border); }
+.st-row {
+  display: flex; justify-content: space-between;
+  padding: 11px 20px; border-bottom: 1px solid var(--border);
+  font-size: .9rem; background: #fff;
+}
+.st-row:nth-child(even) { background: var(--yellow-bg); }
+.st-row:last-child { border-bottom: none; }
+.st-row.total {
+  background: var(--yellow-bg); border-top: 2px solid #fde68a;
+  padding: 14px 20px;
+}
+.st-row.total span:first-child { font-weight: 700; color: var(--dark); }
+.st-row.total span:last-child { font-weight: 800; color: var(--yellow); font-size: 1.05rem; }
+.st-row.effnetto span:last-child { color: var(--green); font-weight: 800; }
+.st-disclaimer {
+  padding: 10px 20px; font-size: .75rem; color: var(--muted);
+  background: var(--bg); border-top: 1px solid var(--border);
+}
 
-  .bar-wrap { margin-top: 14px; }
-  .bar-label { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); margin-bottom: 4px; }
-  .bar { height: 10px; border-radius: 99px; background: #e2e8f0; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 99px; transition: width .5s; }
+/* ── STAT CHIPS ─────────────────────────────────── */
+.chips { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.chip {
+  flex: 1; min-width: 120px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px;
+  text-align: center; box-shadow: var(--shadow-sm);
+}
+.chip .val { font-size: 1.3rem; font-weight: 800; color: var(--dark); letter-spacing: -.02em; }
+.chip .val.green { color: var(--green); }
+.chip .val.red   { color: var(--red); }
+.chip .lbl { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 3px; }
 
-  .info-box {
-    background: #fff8e1; border-left: 4px solid #f9a825;
-    padding: 10px 14px; border-radius: 6px; font-size: .82rem;
-    color: #5d4037; margin-bottom: 16px;
-  }
+/* ── BAR ────────────────────────────────────────── */
+.bar-wrap { margin-top: 6px; }
+.bar-labels { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+.bar-track { height: 8px; border-radius: 99px; background: var(--border); overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 99px; transition: width .6s cubic-bezier(.4,0,.2,1); }
 
-  .ad-side { display: none; }
+/* ── BEWERTUNG ──────────────────────────────────── */
+.bewertung {
+  padding: 14px 18px; border-radius: var(--radius-sm);
+  font-weight: 600; font-size: .9rem; margin-top: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
 
-  footer {
-    text-align: center; color: var(--muted); font-size: .8rem;
-    padding: 20px; border-top: 1px solid var(--border);
-  }
+footer {
+  text-align: center; color: var(--muted); font-size: .78rem;
+  padding: 32px 20px; border-top: 1px solid var(--border);
+  background: var(--card);
+}
+footer strong { color: var(--body); }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>🇨🇭 FinanzKlar Schweiz</h1>
-  <p>Deine kostenlose Schweizer Finanz-Toolbox – Rechne. Plane. Spare.</p>
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">🇨🇭 Schweizer Finanz-Tools 2024</div>
+  <h1>Deine Finanzen.<br><span>Klar & einfach.</span></h1>
+  <p>Kostenlose Rechner für Lohn, Steuern, Kredit, Miete und Sparziele – präzise auf die Schweiz zugeschnitten.</p>
 </header>
 
-<nav>
-  <button class="active" onclick="show('netto',this)">💼 Nettolohn</button>
-  <button onclick="show('kredit',this)">🏦 Kredit</button>
-  <button onclick="show('miete',this)">🏠 Miete</button>
-  <button onclick="show('sparen',this)">📈 Sparen</button>
-  <button onclick="show('budget',this)">📊 Budget</button>
-</nav>
+<!-- NAV PILLS -->
+<div class="nav-wrap">
+  <div class="nav-pills">
+    <button class="active" onclick="show('netto',this)">💼 Nettolohn</button>
+    <button onclick="show('kredit',this)">🏦 Kredit</button>
+    <button onclick="show('miete',this)">🏠 Miete</button>
+    <button onclick="show('sparen',this)">📈 Sparen</button>
+    <button onclick="show('budget',this)">📊 Budget</button>
+  </div>
+</div>
 
 <main>
 
-<!-- ===== NETTOLOHN (Schweiz) ===== -->
+<!-- ══════════ NETTOLOHN ══════════ -->
 <div class="tool active" id="netto">
-  <div class="ad-side">📢 300×100 – Werbeplatz</div>
   <div class="card">
-    <h2>💼 Schweizer Nettolohnrechner</h2>
-    <p class="subtitle">Berechnung nach AHV/IV/EO, ALV, Pensionskasse & NBU-Prämie (2024)</p>
+    <div class="card-header">
+      <h2>💼 Lohnausweis-Rechner</h2>
+      <p>Sozialabzüge nach CH-Standard 2024 · Steuern separat ausgewiesen</p>
+    </div>
     <div class="info-box">
-      ℹ️ Die Bundessteuer und Kantonssteuer sind stark vom Wohnkanton und Familienstand abhängig. Dieser Rechner gibt eine gute Schätzung, kein Steuerrechtsgutachten.
+      CH-Bürger & C-Ausweis: Steuern werden <strong>nicht</strong> vom Lohn abgezogen – sie werden jährlich via Steuererklärung bezahlt.
     </div>
     <div class="grid">
-      <div>
-        <label>Bruttolohn (CHF/Monat)</label>
-        <input type="number" id="n-brutto" value="7000" min="0">
+      <div class="field">
+        <label>Bruttolohn / Monat</label>
+        <input type="number" id="n-brutto" value="8400" min="0">
       </div>
-      <div>
+      <div class="field">
         <label>Kanton</label>
-        <select id="n-kanton">
-          <option value="0.115">Zürich</option>
-          <option value="0.100">Zug</option>
-          <option value="0.118">Bern</option>
-          <option value="0.112">Luzern</option>
-          <option value="0.120">Aargau</option>
-          <option value="0.108">Basel-Stadt</option>
-          <option value="0.115">St. Gallen</option>
-          <option value="0.122">Solothurn</option>
-          <option value="0.119">Thurgau</option>
-          <option value="0.110">Genf</option>
-          <option value="0.117">Waadt</option>
-          <option value="0.116">Wallis</option>
+        <select id="n-kanton" onchange="fillGemeinden()">
+          <option value="zh">Zürich</option><option value="zg">Zug</option>
+          <option value="be">Bern</option><option value="lu">Luzern</option>
+          <option value="ag">Aargau</option><option value="bs">Basel-Stadt</option>
+          <option value="sg">St. Gallen</option><option value="so">Solothurn</option>
+          <option value="tg">Thurgau</option><option value="ge">Genf</option>
+          <option value="vd">Waadt</option><option value="vs">Wallis</option>
         </select>
       </div>
-      <div>
+      <div class="field">
+        <label>Gemeinde</label>
+        <select id="n-gemeinde"></select>
+      </div>
+      <div class="field">
         <label>Zivilstand</label>
         <select id="n-zivilstand">
           <option value="single">Ledig</option>
-          <option value="verheiratet">Verheiratet</option>
+          <option value="verheiratet">Verheiratet (Alleinverdiener)</option>
+          <option value="verheiratet2">Verheiratet (Doppelverdiener)</option>
         </select>
       </div>
-      <div>
+      <div class="field">
+        <label>Kinder</label>
+        <select id="n-kinder">
+          <option value="0">Keine</option><option value="1">1 Kind</option>
+          <option value="2">2 Kinder</option><option value="3">3+ Kinder</option>
+        </select>
+      </div>
+      <div class="field">
         <label>Kirchensteuer</label>
-        <select id="n-kirche">
-          <option value="0">Nein</option>
-          <option value="0.12">Ja (~12% der Staatssteuer)</option>
+        <select id="n-kirche"><option value="0">Nein</option><option value="1">Ja</option></select>
+      </div>
+      <div class="field">
+        <label>Alter (BVG-Schätzung)</label>
+        <select id="n-alter">
+          <option value="7">25–34 Jahre (~7%)</option>
+          <option value="10" selected>35–44 Jahre (~10%)</option>
+          <option value="15">45–54 Jahre (~15%)</option>
+          <option value="18">55–65 Jahre (~18%)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Ausweis / Steuerstatus</label>
+        <select id="n-ausweis">
+          <option value="c">CH-Bürger / C-Ausweis</option>
+          <option value="b">B-Ausweis / Grenzgänger</option>
         </select>
       </div>
     </div>
     <button class="btn" onclick="calcNetto()">Berechnen</button>
+
     <div class="result" id="n-result">
-      <div class="result-grid">
-        <div class="result-item ok"><div class="val" id="n-netto">–</div><div class="lbl">Nettolohn (mtl.)</div></div>
-        <div class="result-item"><div class="val" id="n-sozial">–</div><div class="lbl">Sozialabzüge (AHV/ALV/PK)</div></div>
-        <div class="result-item"><div class="val" id="n-steuer">–</div><div class="lbl">Quellensteuer (Schätzung)</div></div>
-        <div class="result-item"><div class="val" id="n-quote">–</div><div class="lbl">Nettoquote</div></div>
+      <!-- Lohnausweis -->
+      <div class="la-card">
+        <div class="la-head">📄 Lohnausweis – monatlich</div>
+        <div class="la-row"><span><strong>Bruttolohn</strong></span><span id="r-brutto">–</span></div>
+        <div class="la-row section-label"><span>Sozialversicherungsabzüge</span></div>
+        <div class="la-row indent"><span>AHV / IV / EO (5.30%)</span><span class="deduct" id="r-ahv">–</span></div>
+        <div class="la-row indent"><span>ALV Arbeitslosenvers. (1.10%)</span><span class="deduct" id="r-alv">–</span></div>
+        <div class="la-row indent"><span>BVG / Pensionskasse AN</span><span class="deduct" id="r-pk">–</span></div>
+        <div class="la-row indent"><span>NBU Nichtberufsunfall (0.47%)</span><span class="deduct" id="r-nbu">–</span></div>
+        <div class="la-row indent" id="r-qst-row" style="display:none"><span>Quellensteuer (B-Ausweis)</span><span class="deduct" id="r-qst">–</span></div>
+        <div class="la-row total"><span>✅ Nettolohn (ausbezahlt)</span><span id="r-netto">–</span></div>
       </div>
-      <div class="bar-wrap" style="margin-top:18px">
-        <div class="bar-label"><span>Nettolohn</span><span>Abzüge</span></div>
-        <div class="bar"><div class="bar-fill" id="n-bar" style="background:var(--accent)"></div></div>
+
+      <!-- Jahresübersicht -->
+      <div class="la-card">
+        <div class="la-head">📅 Jahresübersicht</div>
+        <div class="la-row"><span><strong>Jahresbruttolohn</strong></span><span id="r-jbrutto">–</span></div>
+        <div class="la-row indent"><span>Sozialabzüge gesamt</span><span class="deduct" id="r-jsozial">–</span></div>
+        <div class="la-row total"><span>Jahresnettolohn (ausbezahlt)</span><span id="r-jnetto">–</span></div>
+      </div>
+
+      <!-- Steuern -->
+      <div class="st-card" id="r-steuer-box">
+        <div class="st-head">🏛️ Geschätzte Steuern – jährlich separat zu bezahlen</div>
+        <div class="st-sub" id="r-steuer-sub">–</div>
+        <div class="st-row"><span>Direkte Bundessteuer</span><span id="r-st-bund">–</span></div>
+        <div class="st-row"><span>Kantonssteuer</span><span id="r-st-kanton">–</span></div>
+        <div class="st-row"><span>Gemeindesteuer</span><span id="r-st-gemeinde">–</span></div>
+        <div class="st-row" id="r-st-kirche-row"><span>Kirchensteuer</span><span id="r-st-kirche">–</span></div>
+        <div class="st-row" id="r-st-kinder-row"><span>Kinderabzug (geschätzt)</span><span id="r-st-kinder">–</span></div>
+        <div class="st-row total"><span>Total Steuern / Jahr</span><span id="r-st-total">–</span></div>
+        <div class="st-row"><span style="color:var(--muted)">→ Monatlich zurücklegen</span><span id="r-st-monat">–</span></div>
+        <div class="st-row effnetto"><span><strong>Effektiver Nettolohn nach Steuern</strong></span><span id="r-st-effnetto">–</span></div>
+        <div class="st-disclaimer">⚠️ Schätzung basierend auf Steuerfüssen 2024. Ohne individuelle Abzüge (3a, Berufskosten etc.).</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== KREDIT ===== -->
+<!-- ══════════ KREDIT ══════════ -->
 <div class="tool" id="kredit">
-  <div class="ad-side">📢 300×100 – Werbeplatz</div>
   <div class="card">
-    <h2>🏦 Kreditrechner</h2>
-    <p class="subtitle">Konsumkredite & Hypotheken – Schweizer Zinsniveau</p>
+    <div class="card-header">
+      <h2>🏦 Kreditrechner</h2>
+      <p>Konsumkredite & Hypotheken – Schweizer Zinsniveau 2024</p>
+    </div>
     <div class="grid">
-      <div>
-        <label>Kreditsumme (CHF): <span id="k-sum-lbl">20'000</span></label>
-        <div class="slider-wrap">
-          <input type="range" id="k-sum" min="1000" max="1000000" step="1000" value="20000" oninput="kSlider()">
-        </div>
+      <div class="slider-field" style="grid-column:1/-1">
+        <label>Kreditsumme <span id="k-sum-lbl">CHF 20'000</span></label>
+        <input type="range" id="k-sum" min="1000" max="1000000" step="1000" value="20000" oninput="kSlider()">
       </div>
-      <div>
-        <label>Laufzeit (Jahre): <span id="k-lz-lbl">5</span></label>
-        <div class="slider-wrap">
-          <input type="range" id="k-lz" min="1" max="30" step="1" value="5" oninput="document.getElementById('k-lz-lbl').textContent=this.value+' J.'">
-        </div>
+      <div class="slider-field">
+        <label>Laufzeit <span id="k-lz-lbl">5 Jahre</span></label>
+        <input type="range" id="k-lz" min="1" max="30" step="1" value="5" oninput="document.getElementById('k-lz-lbl').textContent=this.value+' Jahre'">
       </div>
-      <div>
-        <label>Kreditart</label>
+      <div class="slider-field">
+        <label>Zinssatz p.a. <span id="k-zins-lbl">5.9%</span></label>
+        <input type="range" id="k-zins" min="0.5" max="12" step="0.1" value="5.9" oninput="document.getElementById('k-zins-lbl').textContent=parseFloat(this.value).toFixed(1)+'%'">
+      </div>
+      <div class="field" style="grid-column:1/-1">
+        <label>Kreditart (Vorlage)</label>
         <select id="k-art" onchange="kArtChange()">
-          <option value="5.9">Konsumkredit (~5.9% – gesetzl. Max.)</option>
+          <option value="5.9">Konsumkredit (max. 5.9% gesetzl.)</option>
           <option value="4.5">Autokredit (~4.5%)</option>
           <option value="2.5">Festhypothek 5J (~2.5%)</option>
           <option value="2.2">Festhypothek 3J (~2.2%)</option>
           <option value="1.8">SARON-Hypothek (~1.8%)</option>
-          <option value="custom">Eigener Zinssatz</option>
         </select>
-      </div>
-      <div>
-        <label>Zinssatz p.a. (%): <span id="k-zins-lbl">5.9</span></label>
-        <div class="slider-wrap">
-          <input type="range" id="k-zins" min="0.5" max="15" step="0.1" value="5.9" oninput="document.getElementById('k-zins-lbl').textContent=parseFloat(this.value).toFixed(1)+'%'">
-        </div>
       </div>
     </div>
     <button class="btn" onclick="calcKredit()">Berechnen</button>
-    <div class="result" id="k-result">
-      <div class="result-grid">
-        <div class="result-item ok"><div class="val" id="k-rate">–</div><div class="lbl">Monatliche Rate</div></div>
-        <div class="result-item"><div class="val" id="k-gesamt">–</div><div class="lbl">Gesamtrückzahlung</div></div>
-        <div class="result-item warn"><div class="val" id="k-zinsk">–</div><div class="lbl">Zinskosten gesamt</div></div>
-        <div class="result-item"><div class="val" id="k-mehrk">–</div><div class="lbl">Mehrkosten in %</div></div>
+    <div class="result show" id="k-result">
+      <div class="chips">
+        <div class="chip"><div class="val green" id="k-rate">–</div><div class="lbl">Monatliche Rate</div></div>
+        <div class="chip"><div class="val" id="k-gesamt">–</div><div class="lbl">Gesamtrückzahlung</div></div>
+        <div class="chip"><div class="val red" id="k-zinsk">–</div><div class="lbl">Zinskosten</div></div>
+        <div class="chip"><div class="val red" id="k-mehrk">–</div><div class="lbl">Mehrkosten %</div></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== MIETE ===== -->
+<!-- ══════════ MIETE ══════════ -->
 <div class="tool" id="miete">
-  <div class="ad-side">📢 300×100 – Werbeplatz</div>
   <div class="card">
-    <h2>🏠 Mietbelastungsrechner</h2>
-    <p class="subtitle">Schweizer Faustregel: max. 1/3 des Bruttoeinkommens für Wohnkosten</p>
+    <div class="card-header">
+      <h2>🏠 Mietbelastungsrechner</h2>
+      <p>Schweizer Faustregel: max. 1/3 des Bruttoeinkommens für Wohnkosten</p>
+    </div>
     <div class="grid">
-      <div>
-        <label>Monatliche Miete (Nettomiete + NK, CHF)</label>
+      <div class="field">
+        <label>Monatliche Miete (inkl. NK)</label>
         <input type="number" id="m-miete" value="2200" min="0">
       </div>
-      <div>
-        <label>Monatliches Bruttoeinkommen (CHF)</label>
+      <div class="field">
+        <label>Monatliches Bruttoeinkommen</label>
         <input type="number" id="m-brutto" value="7000" min="1">
       </div>
     </div>
     <button class="btn" onclick="calcMiete()">Analysieren</button>
     <div class="result" id="m-result">
-      <div class="result-grid">
-        <div class="result-item" id="m-qi"><div class="val" id="m-quote">–</div><div class="lbl">Mietbelastung (Brutto)</div></div>
-        <div class="result-item"><div class="val" id="m-rest">–</div><div class="lbl">Verbleibend (brutto)</div></div>
-        <div class="result-item"><div class="val" id="m-jahres">–</div><div class="lbl">Jahresmiete</div></div>
+      <div class="chips">
+        <div class="chip"><div class="val" id="m-quote">–</div><div class="lbl">Mietbelastung</div></div>
+        <div class="chip"><div class="val green" id="m-rest">–</div><div class="lbl">Verbleibend</div></div>
+        <div class="chip"><div class="val" id="m-jahres">–</div><div class="lbl">Jahresmiete</div></div>
       </div>
-      <div id="m-bewertung" style="margin-top:14px;padding:12px;border-radius:8px;font-weight:600;text-align:center"></div>
-      <div class="bar-wrap" style="margin-top:14px">
-        <div class="bar-label"><span>Miete</span><span>Übriges Einkommen</span></div>
-        <div class="bar"><div class="bar-fill" id="m-bar"></div></div>
+      <div id="m-bewertung" class="bewertung"></div>
+      <div class="bar-wrap">
+        <div class="bar-labels"><span>Miete</span><span>Übriges Einkommen</span></div>
+        <div class="bar-track"><div class="bar-fill" id="m-bar"></div></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== SPAREN ===== -->
+<!-- ══════════ SPAREN ══════════ -->
 <div class="tool" id="sparen">
-  <div class="ad-side">📢 300×100 – Werbeplatz</div>
   <div class="card">
-    <h2>📈 Sparrechner & Zinseszins</h2>
-    <p class="subtitle">Inkl. Schweizer Säule-3a-Hinweis & typische Schweizer Renditen</p>
-    <div class="info-box">
-      💡 <strong>Tipp:</strong> Säule 3a max. CHF 7'056/Jahr (2024, Arbeitnehmer). Rendite Sparkonto ca. 0.5–1.5%, ETF-Portfolio historisch 5–7% p.a.
+    <div class="card-header">
+      <h2>📈 Sparrechner & Zinseszins</h2>
+      <p>Mit Inflation & Schweizer Rendite-Vorlagen</p>
     </div>
+    <div class="info-box">Säule 3a max. CHF 7'056/Jahr (2024). Sparkonto ~1%, ETF-Portfolio historisch ~5–7% p.a.</div>
     <div class="grid">
-      <div>
-        <label>Startkapital (CHF)</label>
-        <input type="number" id="s-start" value="10000" min="0">
-      </div>
-      <div>
-        <label>Monatliche Sparrate (CHF)</label>
-        <input type="number" id="s-rate" value="500" min="0">
-      </div>
-      <div>
-        <label>Zinssatz / Rendite p.a. (%)</label>
+      <div class="field"><label>Startkapital (CHF)</label><input type="number" id="s-start" value="10000" min="0"></div>
+      <div class="field"><label>Monatliche Sparrate (CHF)</label><input type="number" id="s-rate" value="500" min="0"></div>
+      <div class="field">
+        <label>Rendite-Vorlage</label>
         <select id="s-zins-sel" onchange="document.getElementById('s-zins').value=this.value">
-          <option value="1.0">Sparkonto CH (~1.0%)</option>
-          <option value="1.5">Säule 3a Konto (~1.5%)</option>
+          <option value="1.0">Sparkonto (~1.0%)</option>
+          <option value="1.5">Säule 3a (~1.5%)</option>
           <option value="5.0" selected>ETF-Portfolio (~5.0%)</option>
           <option value="7.0">Aktien historisch (~7.0%)</option>
-          <option value="custom">Eigener Wert</option>
         </select>
       </div>
-      <div>
-        <label>Eigener Zinssatz (%)</label>
-        <input type="number" id="s-zins" value="5.0" min="0" step="0.1">
-      </div>
-      <div>
-        <label>Anlagedauer (Jahre)</label>
-        <input type="number" id="s-jahre" value="25" min="1" max="50">
-      </div>
-      <div>
-        <label>Inflation abziehen (%)</label>
-        <input type="number" id="s-inflation" value="1.5" min="0" step="0.1">
-      </div>
+      <div class="field"><label>Rendite p.a. (%)</label><input type="number" id="s-zins" value="5.0" min="0" step="0.1"></div>
+      <div class="field"><label>Anlagedauer (Jahre)</label><input type="number" id="s-jahre" value="25" min="1" max="50"></div>
+      <div class="field"><label>Inflation p.a. (%)</label><input type="number" id="s-inflation" value="1.5" min="0" step="0.1"></div>
     </div>
     <button class="btn" onclick="calcSparen()">Berechnen</button>
     <div class="result" id="s-result">
-      <div class="result-grid">
-        <div class="result-item ok"><div class="val" id="s-end">–</div><div class="lbl">Endkapital (nominal)</div></div>
-        <div class="result-item"><div class="val" id="s-real">–</div><div class="lbl">Endkapital (real, nach Inflation)</div></div>
-        <div class="result-item"><div class="val" id="s-eingezahlt">–</div><div class="lbl">Eingezahlt</div></div>
-        <div class="result-item ok"><div class="val" id="s-gewinn">–</div><div class="lbl">Zinsgewinn</div></div>
+      <div class="chips">
+        <div class="chip"><div class="val green" id="s-end">–</div><div class="lbl">Endkapital nominal</div></div>
+        <div class="chip"><div class="val" id="s-real">–</div><div class="lbl">Endkapital real</div></div>
+        <div class="chip"><div class="val" id="s-eingezahlt">–</div><div class="lbl">Eingezahlt</div></div>
+        <div class="chip"><div class="val green" id="s-gewinn">–</div><div class="lbl">Zinsgewinn</div></div>
       </div>
-      <div class="bar-wrap" style="margin-top:16px">
-        <div class="bar-label"><span>Einzahlungen</span><span>Zinsen/Rendite</span></div>
-        <div class="bar"><div class="bar-fill" id="s-bar" style="background:var(--accent)"></div></div>
+      <div class="bar-wrap" style="margin-top:8px">
+        <div class="bar-labels"><span>Einzahlungen</span><span>Rendite</span></div>
+        <div class="bar-track"><div class="bar-fill" id="s-bar" style="background:var(--green)"></div></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== BUDGET ===== -->
+<!-- ══════════ BUDGET ══════════ -->
 <div class="tool" id="budget">
-  <div class="ad-side">📢 300×100 – Werbeplatz</div>
   <div class="card">
-    <h2>📊 Haushaltsbudget-Analyse</h2>
-    <p class="subtitle">Basierend auf Schweizer Lebenshaltungskosten (Richtwerte Pro Infirmis/SKS)</p>
-    <div class="info-box">
-      💡 Empfehlung: <strong>Miete/Wohnen max. 30%</strong>, Sparen mind. <strong>10–15%</strong> des Nettolohns.
+    <div class="card-header">
+      <h2>📊 Haushaltsbudget-Analyse</h2>
+      <p>Schweizer Lebenshaltungskosten · Richtwerte SKS</p>
     </div>
+    <div class="info-box">Empfehlung: Wohnen max. 30%, Sparen mind. 10–15% des Nettolohns.</div>
     <div class="grid">
-      <div>
-        <label>Nettolohn (CHF/Monat)</label>
-        <input type="number" id="b-ein" value="5000" min="1">
-      </div>
-      <div>
-        <label>🏠 Wohnen (Miete + NK, CHF)</label>
-        <input type="number" id="b-miete" value="1600" min="0">
-      </div>
-      <div>
-        <label>🛒 Lebensmittel & Haushalt (CHF)</label>
-        <input type="number" id="b-food" value="600" min="0">
-      </div>
-      <div>
-        <label>🚗 Mobilität (ÖV/Auto, CHF)</label>
-        <input type="number" id="b-trans" value="300" min="0">
-      </div>
-      <div>
-        <label>🛡️ Versicherungen (KK, Haftpflicht…, CHF)</label>
-        <input type="number" id="b-vers" value="450" min="0">
-      </div>
-      <div>
-        <label>📱 Kommunikation & Abo (CHF)</label>
-        <input type="number" id="b-komm" value="100" min="0">
-      </div>
-      <div>
-        <label>🎉 Freizeit, Ausgang, Ferien (CHF)</label>
-        <input type="number" id="b-frei" value="400" min="0">
-      </div>
-      <div>
-        <label>🏦 Steuern (Kanton/Gemeinde, CHF)</label>
-        <input type="number" id="b-steuer" value="400" min="0">
-      </div>
+      <div class="field"><label>Nettolohn / Monat</label><input type="number" id="b-ein" value="5000" min="1"></div>
+      <div class="field"><label>🏠 Wohnen (Miete + NK)</label><input type="number" id="b-miete" value="1600" min="0"></div>
+      <div class="field"><label>🛒 Lebensmittel & Haushalt</label><input type="number" id="b-food" value="600" min="0"></div>
+      <div class="field"><label>🚗 Mobilität (ÖV / Auto)</label><input type="number" id="b-trans" value="300" min="0"></div>
+      <div class="field"><label>🛡️ Versicherungen (KK etc.)</label><input type="number" id="b-vers" value="450" min="0"></div>
+      <div class="field"><label>📱 Kommunikation & Abos</label><input type="number" id="b-komm" value="100" min="0"></div>
+      <div class="field"><label>🎉 Freizeit & Ferien</label><input type="number" id="b-frei" value="400" min="0"></div>
+      <div class="field"><label>🏦 Steuern (Kanton/Gemeinde)</label><input type="number" id="b-steuer" value="400" min="0"></div>
     </div>
     <button class="btn" onclick="calcBudget()">Analysieren</button>
     <div class="result" id="b-result">
-      <div class="result-grid">
-        <div class="result-item warn"><div class="val" id="b-ausgaben">–</div><div class="lbl">Gesamtausgaben</div></div>
-        <div class="result-item ok"><div class="val" id="b-uebrig">–</div><div class="lbl">Übrig / Sparpotenzial</div></div>
-        <div class="result-item"><div class="val" id="b-sparq">–</div><div class="lbl">Sparquote</div></div>
+      <div class="chips">
+        <div class="chip"><div class="val red" id="b-ausgaben">–</div><div class="lbl">Gesamtausgaben</div></div>
+        <div class="chip"><div class="val green" id="b-uebrig">–</div><div class="lbl">Übrig / Sparpotenzial</div></div>
+        <div class="chip"><div class="val" id="b-sparq">–</div><div class="lbl">Sparquote</div></div>
       </div>
-      <div id="b-bars" style="margin-top:16px"></div>
+      <div id="b-bars" style="margin-top:8px"></div>
     </div>
   </div>
 </div>
@@ -385,201 +539,137 @@
 </main>
 
 <footer>
-  FinanzKlar Schweiz © 2025 – Alle Angaben ohne Gewähr. Kein Steuer- oder Finanzberatungsersatz.<br>
-  Quellenangaben: ESTV, AHV/IV, BSV, Pro Infirmis Budgetberatung
+  <strong>FinanzKlar Schweiz</strong> © 2025 &nbsp;·&nbsp; Alle Angaben ohne Gewähr &nbsp;·&nbsp; Kein Steuer- oder Finanzberatungsersatz<br>
+  <span style="margin-top:4px;display:block">Quellen: ESTV, AHV/IV, BSV, Kantonale Steuerrechner</span>
 </footer>
 
 <script>
-// UTILS
-const chf = v => 'CHF ' + new Intl.NumberFormat('de-CH',{minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
-const chf0 = v => 'CHF ' + new Intl.NumberFormat('de-CH',{maximumFractionDigits:0}).format(v);
-const pct = v => (v*100).toFixed(1)+' %';
-const fmtK = v => v >= 1000 ? new Intl.NumberFormat('de-CH',{maximumFractionDigits:0}).format(v) : v.toFixed(0);
+const chf  = v => 'CHF\u00a0' + new Intl.NumberFormat('de-CH',{minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+const chf0 = v => 'CHF\u00a0' + new Intl.NumberFormat('de-CH',{maximumFractionDigits:0}).format(v);
+const pct  = v => (v*100).toFixed(1)+'\u00a0%';
 
-function show(id, btn) {
-  document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+function show(id,btn){
+  document.querySelectorAll('.tool').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-pills button').forEach(b=>b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
 }
 
-function kSlider() {
-  const v = +document.getElementById('k-sum').value;
-  document.getElementById('k-sum-lbl').textContent = "CHF " + new Intl.NumberFormat('de-CH',{maximumFractionDigits:0}).format(v);
+const GEMEINDEN={zh:[{n:'Zürich',f:1.19},{n:'Winterthur',f:1.22},{n:'Uster',f:1.10},{n:'Dübendorf',f:1.07},{n:'Dietikon',f:1.17},{n:'Bülach',f:1.13},{n:'Horgen',f:0.97},{n:'Küsnacht',f:0.75},{n:'Thalwil',f:0.89},{n:'Adliswil',f:1.05},{n:'Kilchberg',f:0.72},{n:'Zollikon',f:0.78},{n:'Opfikon',f:1.05}],zg:[{n:'Zug',f:0.82},{n:'Baar',f:0.80},{n:'Cham',f:0.80},{n:'Rotkreuz',f:0.72},{n:'Steinhausen',f:0.80}],be:[{n:'Bern',f:1.54},{n:'Biel',f:1.69},{n:'Thun',f:1.55},{n:'Köniz',f:1.55},{n:'Burgdorf',f:1.54}],lu:[{n:'Luzern',f:1.60},{n:'Kriens',f:1.70},{n:'Emmen',f:1.75},{n:'Horw',f:1.45},{n:'Sursee',f:1.60}],ag:[{n:'Aarau',f:1.06},{n:'Baden',f:1.00},{n:'Wettingen',f:1.08},{n:'Brugg',f:1.05},{n:'Rheinfelden',f:1.10}],bs:[{n:'Basel',f:1.0},{n:'Riehen',f:1.0},{n:'Bettingen',f:1.0}],sg:[{n:'St. Gallen',f:1.55},{n:'Gossau',f:1.56},{n:'Rapperswil-Jona',f:1.48},{n:'Wil',f:1.54}],so:[{n:'Solothurn',f:1.09},{n:'Olten',f:1.26},{n:'Grenchen',f:1.26},{n:'Bettlach',f:1.10}],tg:[{n:'Frauenfeld',f:1.31},{n:'Kreuzlingen',f:1.35},{n:'Arbon',f:1.39},{n:'Amriswil',f:1.34}],ge:[{n:'Genf',f:0.455},{n:'Carouge',f:0.455},{n:'Lancy',f:0.455},{n:'Vernier',f:0.455}],vd:[{n:'Lausanne',f:0.795},{n:'Bussigny',f:0.73},{n:'Nyon',f:0.67},{n:'Morges',f:0.67}],vs:[{n:'Sion',f:1.30},{n:'Sierre',f:1.25},{n:'Visp',f:1.10},{n:'Brig',f:1.20}]};
+const KANTONE={zh:{name:'Zürich',kSt:0.100,kircheRate:0.10},zg:{name:'Zug',kSt:0.060,kircheRate:0.08},be:{name:'Bern',kSt:0.105,kircheRate:0.18},lu:{name:'Luzern',kSt:0.090,kircheRate:0.08},ag:{name:'Aargau',kSt:0.100,kircheRate:0.07},bs:{name:'Basel-Stadt',kSt:0.107,kircheRate:0.10},sg:{name:'St. Gallen',kSt:0.100,kircheRate:0.07},so:{name:'Solothurn',kSt:0.100,kircheRate:0.09},tg:{name:'Thurgau',kSt:0.105,kircheRate:0.07},ge:{name:'Genf',kSt:0.130,kircheRate:0.08},vd:{name:'Waadt',kSt:0.155,kircheRate:0.07},vs:{name:'Wallis',kSt:0.135,kircheRate:0.07}};
+
+function fillGemeinden(){
+  const k=document.getElementById('n-kanton').value;
+  document.getElementById('n-gemeinde').innerHTML=(GEMEINDEN[k]||[]).map(g=>`<option value="${g.f}">${g.n}</option>`).join('');
+}
+fillGemeinden();
+
+function bundessteuer(j,v){
+  const st=j*0.78; let s=0;
+  if(!v){if(st<=17800)s=0;else if(st<=31600)s=(st-17800)*.0077;else if(st<=41400)s=106+(st-31600)*.0088;else if(st<=55200)s=192+(st-41400)*.0264;else if(st<=72500)s=556+(st-55200)*.0297;else if(st<=78100)s=1070+(st-72500)*.0561;else if(st<=103600)s=1384+(st-78100)*.0825;else if(st<=134600)s=3488+(st-103600)*.099;else if(st<=176000)s=6577+(st-134600)*.1056;else s=10949+(st-176000)*.115;}
+  else{if(st<=28300)s=0;else if(st<=50900)s=(st-28300)*.01;else if(st<=58400)s=226+(st-50900)*.02;else if(st<=75300)s=376+(st-58400)*.03;else if(st<=90300)s=883+(st-75300)*.04;else if(st<=103400)s=1483+(st-90300)*.05;else if(st<=114700)s=2138+(st-103400)*.06;else if(st<=124000)s=2816+(st-114700)*.07;else if(st<=131700)s=3467+(st-124000)*.08;else if(st<=141200)s=4083+(st-131700)*.09;else if(st<=154500)s=4938+(st-141200)*.10;else if(st<=176000)s=6268+(st-154500)*.11;else s=8633+(st-176000)*.115;}
+  return Math.max(0,s);
 }
 
-function kArtChange() {
-  const v = document.getElementById('k-art').value;
-  if(v !== 'custom') {
-    document.getElementById('k-zins').value = v;
-    document.getElementById('k-zins-lbl').textContent = parseFloat(v).toFixed(1)+'%';
+function calcNetto(){
+  const b=+document.getElementById('n-brutto').value;
+  const kCode=document.getElementById('n-kanton').value;
+  const gFaktor=+document.getElementById('n-gemeinde').value;
+  const gName=document.getElementById('n-gemeinde').options[document.getElementById('n-gemeinde').selectedIndex]?.text||'';
+  const zvStand=document.getElementById('n-zivilstand').value;
+  const kinder=+document.getElementById('n-kinder').value;
+  const kirche=+document.getElementById('n-kirche').value;
+  const pkPct=+document.getElementById('n-alter').value/100;
+  const ausweis=document.getElementById('n-ausweis').value;
+  const kDaten=KANTONE[kCode];
+  const verheiratet=zvStand!=='single';
+  const ahv=b*0.0530,alv=b*0.0110,pk=b*pkPct,nbu=b*0.0047;
+  const sozialM=ahv+alv+pk+nbu;
+  let qst=0;
+  if(ausweis==='b'){const jB=b*12;const bSt=bundessteuer(jB,verheiratet);const kSt=jB*0.78*kDaten.kSt;const gSt=kSt*gFaktor;qst=(bSt+kSt+gSt)/12;}
+  const netto=b-sozialM-qst;
+  document.getElementById('r-brutto').textContent=chf(b);
+  document.getElementById('r-ahv').textContent='– '+chf(ahv);
+  document.getElementById('r-alv').textContent='– '+chf(alv);
+  document.getElementById('r-pk').textContent='– '+chf(pk);
+  document.getElementById('r-nbu').textContent='– '+chf(nbu);
+  document.getElementById('r-netto').textContent=chf(netto);
+  const qRow=document.getElementById('r-qst-row');
+  if(ausweis==='b'){qRow.style.display='';document.getElementById('r-qst').textContent='– '+chf(qst);}else{qRow.style.display='none';}
+  document.getElementById('r-jbrutto').textContent=chf0(b*12);
+  document.getElementById('r-jsozial').textContent='– '+chf0(sozialM*12);
+  document.getElementById('r-jnetto').textContent=chf0(netto*12);
+  const stBox=document.getElementById('r-steuer-box');
+  if(ausweis==='b'){stBox.style.display='none';}else{
+    stBox.style.display='';
+    const jB=b*12,stBund=bundessteuer(jB,verheiratet),stEin=jB*0.78;
+    const stK=stEin*kDaten.kSt,stG=stK*gFaktor,stKi=kirche==1?stK*kDaten.kircheRate:0;
+    const kinderAbz=kinder*650;
+    const total=Math.max(0,stBund+stK+stG+stKi-kinderAbz);
+    document.getElementById('r-steuer-sub').textContent=`Kanton ${kDaten.name} · Gemeinde ${gName} (Steuerfuss ${(gFaktor*100).toFixed(0)}%)`;
+    document.getElementById('r-st-bund').textContent=chf0(stBund);
+    document.getElementById('r-st-kanton').textContent=chf0(stK);
+    document.getElementById('r-st-gemeinde').textContent=chf0(stG);
+    const kiRow=document.getElementById('r-st-kirche-row');
+    if(kirche==1){kiRow.style.display='';document.getElementById('r-st-kirche').textContent=chf0(stKi);}else{kiRow.style.display='none';}
+    const kdRow=document.getElementById('r-st-kinder-row');
+    if(kinder>0){kdRow.style.display='';document.getElementById('r-st-kinder').textContent='– '+chf0(kinderAbz);}else{kdRow.style.display='none';}
+    document.getElementById('r-st-total').textContent=chf0(total);
+    document.getElementById('r-st-monat').textContent=chf0(total/12)+' / Monat';
+    document.getElementById('r-st-effnetto').textContent=chf0((netto*12-total)/12)+' / Monat';
   }
-}
-
-// ---- NETTOLOHN SCHWEIZ ----
-function calcNetto() {
-  const b = +document.getElementById('n-brutto').value;
-  const kantonRate = +document.getElementById('n-kanton').value;
-  const verheiratet = document.getElementById('n-zivilstand').value === 'verheiratet';
-  const kircheRate = +document.getElementById('n-kirche').value;
-
-  // Sozialabzüge Arbeitnehmer 2024
-  const ahv_rate   = 0.0550; // AHV/IV/EO
-  const alv_rate   = 0.011;  // ALV (bis CHF 148'200 Jahres-JL)
-  const pk_rate    = 0.075;  // BVG Pensionskasse (Näherung Mittelwert)
-  const nbu_rate   = 0.0038; // NBU (Nichtberufsunfall)
-
-  const ahv   = b * ahv_rate;
-  const alv   = b * alv_rate;
-  const pk    = b * pk_rate;
-  const nbu   = b * nbu_rate;
-  const sozial = ahv + alv + pk + nbu;
-
-  // Quellensteuer Schätzung (vereinfacht, auf Basis ESTV-Tarife)
-  // Tarif A = ledig, B = verheiratet Alleinverdiener
-  const basis = b * 12; // Jahresbrutto
-  let stJahr = 0;
-  if(!verheiratet) {
-    // Tarif A (ledig)
-    if(basis <= 17000) stJahr = 0;
-    else if(basis <= 31000) stJahr = basis * 0.02;
-    else if(basis <= 45000) stJahr = basis * 0.04;
-    else if(basis <= 60000) stJahr = basis * 0.065;
-    else if(basis <= 80000) stJahr = basis * 0.085;
-    else if(basis <= 110000) stJahr = basis * 0.105;
-    else if(basis <= 150000) stJahr = basis * kantonRate;
-    else stJahr = basis * (kantonRate + 0.02);
-  } else {
-    // Tarif B (verheiratet) – günstiger
-    if(basis <= 28000) stJahr = 0;
-    else if(basis <= 50000) stJahr = basis * 0.02;
-    else if(basis <= 80000) stJahr = basis * 0.05;
-    else if(basis <= 120000) stJahr = basis * (kantonRate - 0.02);
-    else stJahr = basis * (kantonRate);
-  }
-  const kircheSt = stJahr * kircheRate;
-  const steuerM = (stJahr + kircheSt) / 12;
-
-  const abzug = sozial + steuerM;
-  const netto = b - abzug;
-  const q = netto / b;
-
-  document.getElementById('n-netto').textContent  = chf(netto);
-  document.getElementById('n-sozial').textContent = chf(sozial);
-  document.getElementById('n-steuer').textContent = chf(steuerM);
-  document.getElementById('n-quote').textContent  = pct(q);
-  document.getElementById('n-bar').style.width    = (q*100).toFixed(1)+'%';
   document.getElementById('n-result').classList.add('show');
 }
 
-// ---- KREDIT ----
-function calcKredit() {
-  const P = +document.getElementById('k-sum').value;
-  const n = +document.getElementById('k-lz').value * 12;
-  const r = +document.getElementById('k-zins').value / 100 / 12;
-  const rate = r === 0 ? P/n : P * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
-  const gesamt = rate * n;
-  const zinsk = gesamt - P;
-  document.getElementById('k-rate').textContent   = chf(rate);
-  document.getElementById('k-gesamt').textContent = chf0(gesamt);
-  document.getElementById('k-zinsk').textContent  = chf0(zinsk);
-  document.getElementById('k-mehrk').textContent  = (zinsk/P*100).toFixed(1)+' %';
-  document.getElementById('k-result').classList.add('show');
+function kSlider(){document.getElementById('k-sum-lbl').textContent=chf0(+document.getElementById('k-sum').value);}
+function kArtChange(){const v=document.getElementById('k-art').value;document.getElementById('k-zins').value=v;document.getElementById('k-zins-lbl').textContent=parseFloat(v).toFixed(1)+'%';}
+function calcKredit(){
+  const P=+document.getElementById('k-sum').value,n=+document.getElementById('k-lz').value*12,r=+document.getElementById('k-zins').value/100/12;
+  const rate=r===0?P/n:P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1),gesamt=rate*n,zinsk=gesamt-P;
+  document.getElementById('k-rate').textContent=chf(rate);
+  document.getElementById('k-gesamt').textContent=chf0(gesamt);
+  document.getElementById('k-zinsk').textContent=chf0(zinsk);
+  document.getElementById('k-mehrk').textContent=(zinsk/P*100).toFixed(1)+' %';
 }
 
-// ---- MIETE ----
-function calcMiete() {
-  const m = +document.getElementById('m-miete').value;
-  const brt = +document.getElementById('m-brutto').value;
-  const q = m / brt;
-  document.getElementById('m-quote').textContent  = pct(q);
-  document.getElementById('m-rest').textContent   = chf0(brt - m);
-  document.getElementById('m-jahres').textContent = chf0(m * 12);
-  document.getElementById('m-bar').style.width    = Math.min(100,q*100).toFixed(1)+'%';
-
-  const bw = document.getElementById('m-bewertung');
-  const qi = document.getElementById('m-qi');
-  if(q <= 0.30) {
-    bw.style.cssText='background:#e8f5e9;color:#2e7d32;padding:12px;border-radius:8px;text-align:center;font-weight:600';
-    bw.textContent = '✅ Sehr gut! Unter der Schweizer Faustformel von 1/3 (33%).';
-    document.getElementById('m-bar').style.background = 'var(--accent)';
-    qi.className = 'result-item ok';
-  } else if(q <= 0.333) {
-    bw.style.cssText='background:#fff8e1;color:#b45309;padding:12px;border-radius:8px;text-align:center;font-weight:600';
-    bw.textContent = '⚠️ Grenzwertig. Knapp an der Schweizer 1/3-Regel.';
-    document.getElementById('m-bar').style.background = '#fbbf24';
-    qi.className = 'result-item';
-  } else {
-    bw.style.cssText='background:#fdecea;color:#c62828;padding:12px;border-radius:8px;text-align:center;font-weight:600';
-    bw.textContent = '🚨 Zu hoch! Über 33% des Bruttoeinkommens – prüfe Sparoptionen oder günstigere Wohnung.';
-    document.getElementById('m-bar').style.background = 'var(--warn)';
-    qi.className = 'result-item warn';
-  }
+function calcMiete(){
+  const m=+document.getElementById('m-miete').value,brt=+document.getElementById('m-brutto').value,q=m/brt;
+  document.getElementById('m-quote').textContent=pct(q);
+  document.getElementById('m-rest').textContent=chf0(brt-m);
+  document.getElementById('m-jahres').textContent=chf0(m*12);
+  document.getElementById('m-bar').style.width=Math.min(100,q*100).toFixed(1)+'%';
+  const bw=document.getElementById('m-bewertung');
+  if(q<=0.30){bw.style.cssText='background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;';bw.innerHTML='✅ Sehr gut – unter der Schweizer 1/3-Regel (33%)';document.getElementById('m-bar').style.background='var(--green)';}
+  else if(q<=0.333){bw.style.cssText='background:#fffbeb;color:#d97706;border:1px solid #fde68a;';bw.innerHTML='⚠️ Grenzwertig – knapp an der 1/3-Regel';document.getElementById('m-bar').style.background='#f59e0b';}
+  else{bw.style.cssText='background:#fff0f1;color:#e63946;border:1px solid var(--red-mid);';bw.innerHTML='🚨 Zu hoch – über 33%, prüfe günstigere Wohnoptionen';document.getElementById('m-bar').style.background='var(--red)';}
   document.getElementById('m-result').classList.add('show');
 }
 
-// ---- SPAREN ----
-function calcSparen() {
-  const S0 = +document.getElementById('s-start').value;
-  const r  = +document.getElementById('s-rate').value;
-  const p  = +document.getElementById('s-zins').value / 100 / 12;
-  const n  = +document.getElementById('s-jahre').value * 12;
-  const inf = +document.getElementById('s-inflation').value / 100;
-
-  let K = S0;
-  for(let i = 0; i < n; i++) K = K*(1+p) + r;
-  const eingezahlt = S0 + r*n;
-  const gewinn = K - eingezahlt;
-  // Real (inflationsbereinigt)
-  const jahre = n/12;
-  const Kreal = K / Math.pow(1+inf, jahre);
-
-  document.getElementById('s-end').textContent       = chf0(K);
-  document.getElementById('s-real').textContent      = chf0(Kreal);
-  document.getElementById('s-eingezahlt').textContent= chf0(eingezahlt);
-  document.getElementById('s-gewinn').textContent    = chf0(gewinn);
-  document.getElementById('s-bar').style.width       = (eingezahlt/K*100).toFixed(1)+'%';
+function calcSparen(){
+  const S0=+document.getElementById('s-start').value,r=+document.getElementById('s-rate').value,p=+document.getElementById('s-zins').value/100/12,n=+document.getElementById('s-jahre').value*12,inf=+document.getElementById('s-inflation').value/100;
+  let K=S0;for(let i=0;i<n;i++)K=K*(1+p)+r;
+  const ein=S0+r*n,gew=K-ein,Kreal=K/Math.pow(1+inf,n/12);
+  document.getElementById('s-end').textContent=chf0(K);
+  document.getElementById('s-real').textContent=chf0(Kreal);
+  document.getElementById('s-eingezahlt').textContent=chf0(ein);
+  document.getElementById('s-gewinn').textContent=chf0(gew);
+  document.getElementById('s-bar').style.width=(ein/K*100).toFixed(1)+'%';
   document.getElementById('s-result').classList.add('show');
 }
 
-// ---- BUDGET ----
-function calcBudget() {
-  const ein = +document.getElementById('b-ein').value;
-  const items = [
-    {id:'b-miete', label:'🏠 Wohnen'},
-    {id:'b-food',  label:'🛒 Lebensmittel'},
-    {id:'b-trans', label:'🚗 Mobilität'},
-    {id:'b-vers',  label:'🛡️ Versicherungen'},
-    {id:'b-komm',  label:'📱 Kommunikation'},
-    {id:'b-frei',  label:'🎉 Freizeit'},
-    {id:'b-steuer',label:'🏦 Steuern'},
-  ];
-  const vals = items.map(i => ({...i, v: +document.getElementById(i.id).value}));
-  const gesamt = vals.reduce((s,i) => s+i.v, 0);
-  const uebrig = ein - gesamt;
-  const sq = uebrig / ein;
-
-  document.getElementById('b-ausgaben').textContent = chf0(gesamt);
-  document.getElementById('b-uebrig').textContent   = chf0(Math.max(0,uebrig));
-  document.getElementById('b-sparq').textContent    = sq > 0 ? pct(sq) : '⚠️ Defizit!';
-
-  const wrap = document.getElementById('b-bars');
-  wrap.innerHTML = vals.map(i => `
-    <div class="bar-wrap">
-      <div class="bar-label">
-        <span>${i.label}</span>
-        <span>${chf0(i.v)} (${(i.v/ein*100).toFixed(0)}%)</span>
-      </div>
-      <div class="bar">
-        <div class="bar-fill" style="width:${Math.min(100,i.v/ein*100).toFixed(1)}%;background:var(--primary);opacity:.7"></div>
-      </div>
-    </div>
-  `).join('');
+function calcBudget(){
+  const ein=+document.getElementById('b-ein').value;
+  const items=[{id:'b-miete',label:'🏠 Wohnen'},{id:'b-food',label:'🛒 Lebensmittel'},{id:'b-trans',label:'🚗 Mobilität'},{id:'b-vers',label:'🛡️ Versicherungen'},{id:'b-komm',label:'📱 Kommunikation'},{id:'b-frei',label:'🎉 Freizeit'},{id:'b-steuer',label:'🏦 Steuern'}];
+  const vals=items.map(i=>({...i,v:+document.getElementById(i.id).value}));
+  const gesamt=vals.reduce((s,i)=>s+i.v,0),uebrig=ein-gesamt,sq=uebrig/ein;
+  document.getElementById('b-ausgaben').textContent=chf0(gesamt);
+  document.getElementById('b-uebrig').textContent=chf0(Math.max(0,uebrig));
+  document.getElementById('b-sparq').textContent=sq>0?pct(sq):'⚠️ Defizit!';
+  document.getElementById('b-bars').innerHTML=vals.map(i=>`<div class="bar-wrap" style="margin-bottom:10px"><div class="bar-labels"><span>${i.label}</span><span>${chf0(i.v)} (${(i.v/ein*100).toFixed(0)}%)</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,i.v/ein*100).toFixed(1)}%;background:var(--red);opacity:.7"></div></div></div>`).join('');
   document.getElementById('b-result').classList.add('show');
 }
 
-// Init
-kSlider();
+kSlider(); calcKredit();
 </script>
 </body>
 </html>
