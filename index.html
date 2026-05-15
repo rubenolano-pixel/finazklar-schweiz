@@ -347,6 +347,13 @@ footer strong { color: var(--body); }
           <option value="b">B-Ausweis / Grenzgänger</option>
         </select>
       </div>
+      <div class="field" style="grid-column:1/-1">
+        <label>13. Monatslohn</label>
+        <div style="display:flex;gap:10px;margin-top:2px">
+          <button type="button" id="btn-13-nein" onclick="set13(false)" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:inherit;font-size:.9rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s">Nein</button>
+          <button type="button" id="btn-13-ja"   onclick="set13(true)"  style="flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:inherit;font-size:.9rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s">Ja – 13. Monatslohn</button>
+        </div>
+      </div>
     </div>
     <button class="btn" onclick="calcNetto()">Berechnen</button>
 
@@ -564,59 +571,174 @@ function fillGemeinden(){
 }
 fillGemeinden();
 
-function bundessteuer(j,v){
-  const st=j*0.78; let s=0;
-  if(!v){if(st<=17800)s=0;else if(st<=31600)s=(st-17800)*.0077;else if(st<=41400)s=106+(st-31600)*.0088;else if(st<=55200)s=192+(st-41400)*.0264;else if(st<=72500)s=556+(st-55200)*.0297;else if(st<=78100)s=1070+(st-72500)*.0561;else if(st<=103600)s=1384+(st-78100)*.0825;else if(st<=134600)s=3488+(st-103600)*.099;else if(st<=176000)s=6577+(st-134600)*.1056;else s=10949+(st-176000)*.115;}
-  else{if(st<=28300)s=0;else if(st<=50900)s=(st-28300)*.01;else if(st<=58400)s=226+(st-50900)*.02;else if(st<=75300)s=376+(st-58400)*.03;else if(st<=90300)s=883+(st-75300)*.04;else if(st<=103400)s=1483+(st-90300)*.05;else if(st<=114700)s=2138+(st-103400)*.06;else if(st<=124000)s=2816+(st-114700)*.07;else if(st<=131700)s=3467+(st-124000)*.08;else if(st<=141200)s=4083+(st-131700)*.09;else if(st<=154500)s=4938+(st-141200)*.10;else if(st<=176000)s=6268+(st-154500)*.11;else s=8633+(st-176000)*.115;}
+// Steuerbares Einkommen nach realistischen CH-Abzügen
+function steuerbaresEinkommen(jBrutto, pkJahr) {
+  // Abzüge nach Zürcher/CH-Praxis (ESTV + Kanton ZH)
+  const berufskosten   = Math.min(jBrutto * 0.03, 4000);  // Berufsauslagen 3%, max 4'000
+  const versicherung   = 2600;   // Pauschale Versicherungs-/Krankenkassenabzug (ledig)
+  const ahvAlvJahr     = jBrutto * (0.053 + 0.011); // AHV+ALV AN-Anteil
+  const nbuJahr        = jBrutto * 0.0047;
+  const dritteSaeule   = 0;      // 3a nicht bekannt → konservativ 0
+  // pk kommt aus Eingabe (Jahresbetrag)
+  const totalAbzug = berufskosten + versicherung + ahvAlvJahr + nbuJahr + pkJahr;
+  return Math.max(0, jBrutto - totalAbzug);
+}
+
+function bundessteuer(stEin, v){
+  // Tarife ESTV 2024, Eingabe = steuerbares Einkommen
+  let s=0;
+  if(!v){
+    if(stEin<=17800)s=0;
+    else if(stEin<=31600)s=(stEin-17800)*.0077;
+    else if(stEin<=41400)s=106+(stEin-31600)*.0088;
+    else if(stEin<=55200)s=192+(stEin-41400)*.0264;
+    else if(stEin<=72500)s=556+(stEin-55200)*.0297;
+    else if(stEin<=78100)s=1070+(stEin-72500)*.0561;
+    else if(stEin<=103600)s=1384+(stEin-78100)*.0825;
+    else if(stEin<=134600)s=3488+(stEin-103600)*.099;
+    else if(stEin<=176000)s=6577+(stEin-134600)*.1056;
+    else s=10949+(stEin-176000)*.115;
+  } else {
+    if(stEin<=28300)s=0;
+    else if(stEin<=50900)s=(stEin-28300)*.01;
+    else if(stEin<=58400)s=226+(stEin-50900)*.02;
+    else if(stEin<=75300)s=376+(stEin-58400)*.03;
+    else if(stEin<=90300)s=883+(stEin-75300)*.04;
+    else if(stEin<=103400)s=1483+(stEin-90300)*.05;
+    else if(stEin<=114700)s=2138+(stEin-103400)*.06;
+    else if(stEin<=124000)s=2816+(stEin-114700)*.07;
+    else if(stEin<=131700)s=3467+(stEin-124000)*.08;
+    else if(stEin<=141200)s=4083+(stEin-131700)*.09;
+    else if(stEin<=154500)s=4938+(stEin-141200)*.10;
+    else if(stEin<=176000)s=6268+(stEin-154500)*.11;
+    else s=8633+(stEin-176000)*.115;
+  }
   return Math.max(0,s);
 }
 
+// Kantonssteuer Zürich: Einfache Steuer auf steuerbares Einkommen
+// Tarif gemäss § 35 StG ZH 2024 (Einheitstarif, Gemeinde multipliziert)
+function kantonssteuerEinfach(stEin, verheiratet) {
+  // Tarif ledig (Tarif A ZH)
+  let s = 0;
+  if(!verheiratet) {
+    if(stEin<=6700)       s=0;
+    else if(stEin<=11300) s=(stEin-6700)*0.02;
+    else if(stEin<=16100) s=92+(stEin-11300)*0.03;
+    else if(stEin<=24100) s=236+(stEin-16100)*0.04;
+    else if(stEin<=33100) s=556+(stEin-24100)*0.05;
+    else if(stEin<=43300) s=1006+(stEin-33100)*0.06;
+    else if(stEin<=56900) s=1618+(stEin-43300)*0.07;
+    else if(stEin<=72500) s=2570+(stEin-56900)*0.08;
+    else if(stEin<=90200) s=3818+(stEin-72500)*0.09;
+    else if(stEin<=114100)s=5411+(stEin-90200)*0.10;
+    else if(stEin<=147100)s=7801+(stEin-114100)*0.11;
+    else if(stEin<=191100)s=11431+(stEin-147100)*0.12;
+    else if(stEin<=254000)s=16711+(stEin-191100)*0.13;
+    else                   s=24888+(stEin-254000)*0.13;
+  } else {
+    // Tarif verheiratet (Tarif B ZH)
+    if(stEin<=13500)      s=0;
+    else if(stEin<=19100) s=(stEin-13500)*0.02;
+    else if(stEin<=27200) s=112+(stEin-19100)*0.03;
+    else if(stEin<=35200) s=355+(stEin-27200)*0.04;
+    else if(stEin<=47200) s=675+(stEin-35200)*0.05;
+    else if(stEin<=59200) s=1275+(stEin-47200)*0.06;
+    else if(stEin<=79400) s=1995+(stEin-59200)*0.07;
+    else if(stEin<=103500)s=3409+(stEin-79400)*0.08;
+    else if(stEin<=131800)s=5337+(stEin-103500)*0.09;
+    else if(stEin<=166600)s=7884+(stEin-131800)*0.10;
+    else if(stEin<=211600)s=11364+(stEin-166600)*0.11;
+    else if(stEin<=271600)s=16314+(stEin-211600)*0.12;
+    else                   s=23514+(stEin-271600)*0.13;
+  }
+  return Math.max(0, s);
+}
+
 function calcNetto(){
-  const b=+document.getElementById('n-brutto').value;
-  const kCode=document.getElementById('n-kanton').value;
-  const gFaktor=+document.getElementById('n-gemeinde').value;
-  const gName=document.getElementById('n-gemeinde').options[document.getElementById('n-gemeinde').selectedIndex]?.text||'';
-  const zvStand=document.getElementById('n-zivilstand').value;
-  const kinder=+document.getElementById('n-kinder').value;
-  const kirche=+document.getElementById('n-kirche').value;
-  const pkPct=+document.getElementById('n-alter').value/100;
-  const ausweis=document.getElementById('n-ausweis').value;
-  const kDaten=KANTONE[kCode];
-  const verheiratet=zvStand!=='single';
-  const ahv=b*0.0530,alv=b*0.0110,pk=b*pkPct,nbu=b*0.0047;
-  const sozialM=ahv+alv+pk+nbu;
-  let qst=0;
-  if(ausweis==='b'){const jB=b*12;const bSt=bundessteuer(jB,verheiratet);const kSt=jB*0.78*kDaten.kSt;const gSt=kSt*gFaktor;qst=(bSt+kSt+gSt)/12;}
-  const netto=b-sozialM-qst;
-  document.getElementById('r-brutto').textContent=chf(b);
-  document.getElementById('r-ahv').textContent='– '+chf(ahv);
-  document.getElementById('r-alv').textContent='– '+chf(alv);
-  document.getElementById('r-pk').textContent='– '+chf(pk);
-  document.getElementById('r-nbu').textContent='– '+chf(nbu);
-  document.getElementById('r-netto').textContent=chf(netto);
-  const qRow=document.getElementById('r-qst-row');
-  if(ausweis==='b'){qRow.style.display='';document.getElementById('r-qst').textContent='– '+chf(qst);}else{qRow.style.display='none';}
-  document.getElementById('r-jbrutto').textContent=chf0(b*12);
-  document.getElementById('r-jsozial').textContent='– '+chf0(sozialM*12);
-  document.getElementById('r-jnetto').textContent=chf0(netto*12);
-  const stBox=document.getElementById('r-steuer-box');
-  if(ausweis==='b'){stBox.style.display='none';}else{
-    stBox.style.display='';
-    const jB=b*12,stBund=bundessteuer(jB,verheiratet),stEin=jB*0.78;
-    const stK=stEin*kDaten.kSt,stG=stK*gFaktor,stKi=kirche==1?stK*kDaten.kircheRate:0;
-    const kinderAbz=kinder*650;
-    const total=Math.max(0,stBund+stK+stG+stKi-kinderAbz);
-    document.getElementById('r-steuer-sub').textContent=`Kanton ${kDaten.name} · Gemeinde ${gName} (Steuerfuss ${(gFaktor*100).toFixed(0)}%)`;
-    document.getElementById('r-st-bund').textContent=chf0(stBund);
-    document.getElementById('r-st-kanton').textContent=chf0(stK);
-    document.getElementById('r-st-gemeinde').textContent=chf0(stG);
-    const kiRow=document.getElementById('r-st-kirche-row');
-    if(kirche==1){kiRow.style.display='';document.getElementById('r-st-kirche').textContent=chf0(stKi);}else{kiRow.style.display='none';}
-    const kdRow=document.getElementById('r-st-kinder-row');
-    if(kinder>0){kdRow.style.display='';document.getElementById('r-st-kinder').textContent='– '+chf0(kinderAbz);}else{kdRow.style.display='none';}
-    document.getElementById('r-st-total').textContent=chf0(total);
-    document.getElementById('r-st-monat').textContent=chf0(total/12)+' / Monat';
-    document.getElementById('r-st-effnetto').textContent=chf0((netto*12-total)/12)+' / Monat';
+  const b        = +document.getElementById('n-brutto').value;
+  const monate   = hat13 ? 13 : 12;
+  const jBrutto  = b * monate;
+  const kCode    = document.getElementById('n-kanton').value;
+  const gFaktor  = +document.getElementById('n-gemeinde').value;
+  const gName    = document.getElementById('n-gemeinde').options[document.getElementById('n-gemeinde').selectedIndex]?.text||'';
+  const zvStand  = document.getElementById('n-zivilstand').value;
+  const kinder   = +document.getElementById('n-kinder').value;
+  const kirche   = +document.getElementById('n-kirche').value;
+  const pkPct    = +document.getElementById('n-alter').value/100;
+  const ausweis  = document.getElementById('n-ausweis').value;
+  const kDaten   = KANTONE[kCode];
+  const verheiratet = zvStand !== 'single';
+
+  // Sozialabzüge (monatlich)
+  const ahv  = b * 0.0530;
+  const alv  = b * 0.0110;
+  const pk   = b * pkPct;
+  const nbu  = b * 0.0047;
+  const sozialM = ahv + alv + pk + nbu;
+
+  // Quellensteuer nur B-Ausweis
+  let qst = 0;
+  if(ausweis === 'b'){
+    const stEin = steuerbaresEinkommen(jBrutto, pk*monate);
+    const bSt   = bundessteuer(stEin, verheiratet);
+    const eSt   = kantonssteuerEinfach(stEin, verheiratet);
+    const kSt   = eSt * kDaten.kSt;
+    const gSt   = eSt * gFaktor;
+    qst = (bSt + kSt + gSt) / monate;
+  }
+
+  const netto = b - sozialM - qst;
+
+  // Lohnausweis
+  document.getElementById('r-brutto').textContent = chf(b) + (hat13 ? ' × 13' : ' × 12');
+  document.getElementById('r-ahv').textContent    = '– ' + chf(ahv);
+  document.getElementById('r-alv').textContent    = '– ' + chf(alv);
+  document.getElementById('r-pk').textContent     = '– ' + chf(pk);
+  document.getElementById('r-nbu').textContent    = '– ' + chf(nbu);
+  document.getElementById('r-netto').textContent  = chf(netto);
+
+  const qRow = document.getElementById('r-qst-row');
+  if(ausweis === 'b'){ qRow.style.display=''; document.getElementById('r-qst').textContent='– '+chf(qst); }
+  else { qRow.style.display='none'; }
+
+  // Jahresübersicht
+  document.getElementById('r-jbrutto').textContent = chf0(jBrutto) + (hat13?' (inkl. 13. ML)':'');
+  document.getElementById('r-jsozial').textContent = '– ' + chf0(sozialM * monate);
+  document.getElementById('r-jnetto').textContent  = chf0(netto * monate);
+
+  // Steuerbox
+  const stBox = document.getElementById('r-steuer-box');
+  if(ausweis === 'b'){ stBox.style.display='none'; }
+  else {
+    stBox.style.display = '';
+    const pkJahr  = pk * monate;
+    const stEin   = steuerbaresEinkommen(jBrutto, pkJahr);
+    const stBund  = bundessteuer(stEin, verheiratet);
+    const eSt     = kantonssteuerEinfach(stEin, verheiratet);
+    const stK     = eSt * kDaten.kSt;
+    const stG     = eSt * gFaktor;
+    const stKi    = kirche==1 ? eSt * kDaten.kircheRate : 0;
+    const kinderAbz = kinder * 700;
+    const total   = Math.max(0, stBund + stK + stG + stKi - kinderAbz);
+
+    document.getElementById('r-steuer-sub').textContent =
+      `Kanton ${kDaten.name} · ${gName} (${(gFaktor*100).toFixed(0)}%) · Steuerbares Einkommen: ${chf0(stEin)}`;
+    document.getElementById('r-st-bund').textContent     = chf0(stBund);
+    document.getElementById('r-st-kanton').textContent   = chf0(stK);
+    document.getElementById('r-st-gemeinde').textContent = chf0(stG);
+
+    const kiRow = document.getElementById('r-st-kirche-row');
+    if(kirche==1){ kiRow.style.display=''; document.getElementById('r-st-kirche').textContent=chf0(stKi); }
+    else { kiRow.style.display='none'; }
+
+    const kdRow = document.getElementById('r-st-kinder-row');
+    if(kinder>0){ kdRow.style.display=''; document.getElementById('r-st-kinder').textContent='– '+chf0(kinderAbz); }
+    else { kdRow.style.display='none'; }
+
+    document.getElementById('r-st-total').textContent   = chf0(total);
+    document.getElementById('r-st-monat').textContent   = chf0(total/12) + ' / Monat';
+    document.getElementById('r-st-effnetto').textContent= chf0((netto*monate - total)/12) + ' / Monat';
   }
   document.getElementById('n-result').classList.add('show');
 }
@@ -668,6 +790,18 @@ function calcBudget(){
   document.getElementById('b-bars').innerHTML=vals.map(i=>`<div class="bar-wrap" style="margin-bottom:10px"><div class="bar-labels"><span>${i.label}</span><span>${chf0(i.v)} (${(i.v/ein*100).toFixed(0)}%)</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,i.v/ein*100).toFixed(1)}%;background:var(--red);opacity:.7"></div></div></div>`).join('');
   document.getElementById('b-result').classList.add('show');
 }
+
+// ── 13. MONATSLOHN ────────────────────────────────
+let hat13 = false;
+function set13(val) {
+  hat13 = val;
+  const base = 'flex:1;padding:10px;border-radius:8px;border:1.5px solid;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .15s;';
+  const on   = base + 'background:#e63946;color:#fff;border-color:#e63946;';
+  const off  = base + 'background:#f8fafc;color:#94a3b8;border-color:#e8edf3;';
+  document.getElementById('btn-13-ja').setAttribute('style',    val  ? on : off);
+  document.getElementById('btn-13-nein').setAttribute('style', !val ? on : off);
+}
+set13(false);
 
 kSlider(); calcKredit();
 </script>
