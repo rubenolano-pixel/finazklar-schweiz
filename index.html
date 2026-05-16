@@ -1,809 +1,2192 @@
-<!DOCTYPE html>
-<html lang="de">
+<!doctype html>
+<html lang="de-CH">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FinanzKlar – Schweizer Finanz-Tools</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="FinanzKlar Schweiz - Kostenlose, präzise Rechner für Lohn, Hypothek, Miete, Sparen und Budget. Daten 2026." />
+<title>FinanzKlar Schweiz - Lohn, Hypothek, Miete, Sparen & Budget Rechner 2026</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root {
-  --red:       #e63946;
-  --red-light: #fff0f1;
-  --red-mid:   #ffd6d9;
-  --dark:      #0f172a;
-  --body:      #334155;
-  --muted:     #94a3b8;
-  --border:    #e8edf3;
-  --bg:        #f8fafc;
-  --card:      #ffffff;
-  --green:     #059669;
-  --green-bg:  #ecfdf5;
-  --yellow:    #d97706;
-  --yellow-bg: #fffbeb;
-  --radius-sm: 10px;
-  --radius:    16px;
-  --radius-lg: 24px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --shadow:    0 4px 16px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.04);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.04);
+  --c-bg: #f7f9fc;
+  --c-surface: #ffffff;
+  --c-surface-2: #f1f4f9;
+  --c-border: #e3e8ef;
+  --c-text: #1a2233;
+  --c-text-muted: #5b6680;
+  --c-primary: #d52b1e;       /* Schweizer Rot */
+  --c-primary-dark: #a31e15;
+  --c-accent: #0a4d8c;        /* Bundesblau */
+  --c-accent-2: #1f8a4c;      /* Grün - positiv */
+  --c-warn: #e0a800;
+  --c-danger: #c0392b;
+  --c-positive: #1f8a4c;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --shadow-sm: 0 1px 3px rgba(20, 30, 50, .06);
+  --shadow-md: 0 4px 14px rgba(20, 30, 50, .08);
+  --shadow-lg: 0 12px 32px rgba(20, 30, 50, .12);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--body); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  background: linear-gradient(180deg, #f0f4fa 0%, #f7f9fc 350px);
+  color: var(--c-text);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+a { color: var(--c-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.container { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
 
-/* ── HERO HEADER ────────────────────────────────── */
-.hero {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1a1020 100%);
-  padding: 56px 24px 72px;
+/* === HEADER === */
+header.hero {
+  padding: 56px 0 36px;
   text-align: center;
-  position: relative;
-  overflow: hidden;
 }
-.hero::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(230,57,70,.18) 0%, transparent 70%);
-  pointer-events: none;
+.flag-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: 999px; padding: 8px 18px; font-size: 13px;
+  font-weight: 600; color: var(--c-text-muted);
+  box-shadow: var(--shadow-sm); margin-bottom: 18px;
 }
-.hero-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
-  color: rgba(255,255,255,.75); font-size: .75rem; font-weight: 600;
-  letter-spacing: .06em; text-transform: uppercase;
-  padding: 6px 14px; border-radius: 99px; margin-bottom: 20px;
+.flag-badge .ch-cross {
+  width: 18px; height: 18px; background: var(--c-primary);
+  border-radius: 3px; position: relative;
 }
-.hero h1 {
-  font-size: clamp(2rem, 5vw, 3rem); font-weight: 800;
-  color: #fff; letter-spacing: -.03em; line-height: 1.1;
-  margin-bottom: 14px;
+.flag-badge .ch-cross::before, .flag-badge .ch-cross::after {
+  content: ""; position: absolute; background: #fff;
 }
-.hero h1 span { color: var(--red); }
-.hero p { color: rgba(255,255,255,.55); font-size: 1.05rem; font-weight: 400; max-width: 480px; margin: 0 auto; }
+.flag-badge .ch-cross::before { top: 3px; bottom: 3px; left: 7px; width: 4px; }
+.flag-badge .ch-cross::after { left: 3px; right: 3px; top: 7px; height: 4px; }
+h1.hero-title {
+  font-size: clamp(32px, 5vw, 52px); font-weight: 800;
+  margin: 8px 0 14px; letter-spacing: -.02em;
+  background: linear-gradient(180deg, #0a4d8c 0%, #1a2233 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-sub {
+  max-width: 640px; margin: 0 auto 28px;
+  font-size: 17px; color: var(--c-text-muted);
+}
+.hero-kpi {
+  display: flex; gap: 28px; justify-content: center; flex-wrap: wrap;
+  margin-top: 24px;
+}
+.hero-kpi div { font-size: 13px; color: var(--c-text-muted); }
+.hero-kpi strong { display: block; color: var(--c-accent); font-size: 22px; font-weight: 800; }
 
-/* ── NAV PILLS ──────────────────────────────────── */
-.nav-wrap {
-  display: flex; justify-content: center;
-  padding: 0 16px;
-  margin-top: -28px; margin-bottom: 36px;
-  position: relative; z-index: 10;
+/* === TABS === */
+.tabs {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  background: var(--c-surface); padding: 8px;
+  border-radius: var(--r-lg); border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-md); margin: 8px auto 28px;
+  position: sticky; top: 12px; z-index: 30; backdrop-filter: blur(8px);
 }
-.nav-pills {
-  display: inline-flex; gap: 6px;
-  background: var(--card); border-radius: 99px;
-  padding: 6px; box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border);
-  overflow-x: auto; max-width: 100%;
+.tab {
+  flex: 1 1 150px; padding: 14px 18px; border-radius: var(--r-md);
+  background: transparent; border: none; cursor: pointer;
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  color: var(--c-text-muted); display: flex; align-items: center;
+  justify-content: center; gap: 8px; transition: all .2s;
 }
-.nav-pills::-webkit-scrollbar { display: none; }
-.nav-pills button {
-  border: none; background: none; cursor: pointer;
-  padding: 9px 18px; border-radius: 99px;
-  font-family: inherit; font-size: .85rem; font-weight: 600;
-  color: var(--muted); white-space: nowrap;
-  transition: all .2s ease;
+.tab:hover { background: var(--c-surface-2); color: var(--c-text); }
+.tab.active {
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-dark) 100%);
+  color: #fff; box-shadow: var(--shadow-sm);
 }
-.nav-pills button:hover { color: var(--body); background: var(--bg); }
-.nav-pills button.active {
-  background: var(--red); color: #fff;
-  box-shadow: 0 2px 8px rgba(230,57,70,.35);
+.tab-icon { font-size: 18px; }
+
+/* === PANELS === */
+.panel {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--r-lg); padding: 32px;
+  box-shadow: var(--shadow-md); display: none; animation: fadeIn .3s;
+}
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.panel-header { margin-bottom: 24px; }
+.panel-header h2 { margin: 0 0 8px; font-size: 26px; letter-spacing: -.01em; }
+.panel-header p { margin: 0; color: var(--c-text-muted); font-size: 14px; }
+
+/* === GRID === */
+.grid { display: grid; gap: 20px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 880px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
 }
 
-/* ── LAYOUT ─────────────────────────────────────── */
-main { max-width: 740px; margin: 0 auto; padding: 0 20px 60px; }
-.tool { display: none; }
-.tool.active { display: block; }
-
-/* ── CARD ───────────────────────────────────────── */
-.card {
-  background: var(--card); border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow); padding: 36px; margin-bottom: 20px;
+/* === INPUTS === */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label {
+  font-size: 13px; font-weight: 600; color: var(--c-text-muted);
+  display: flex; justify-content: space-between; align-items: center;
 }
-.card-header { margin-bottom: 28px; }
-.card-header h2 {
-  font-size: 1.25rem; font-weight: 700; color: var(--dark);
-  letter-spacing: -.02em; display: flex; align-items: center; gap: 10px;
+.field label .help { color: var(--c-accent); cursor: help; font-weight: 500; font-size: 12px; }
+input[type="number"], input[type="text"], select {
+  font-family: inherit; font-size: 15px; padding: 11px 13px;
+  border: 1px solid var(--c-border); border-radius: var(--r-sm);
+  background: var(--c-surface); color: var(--c-text);
+  transition: border-color .15s, box-shadow .15s; width: 100%;
 }
-.card-header p { color: var(--muted); font-size: .875rem; margin-top: 4px; }
+input:focus, select:focus {
+  outline: none; border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px rgba(10, 77, 140, .12);
+}
+input[type="range"] { width: 100%; accent-color: var(--c-primary); }
+.range-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--c-text-muted); margin-top: -2px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 22px; border-radius: var(--r-md); border: none;
+  font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
+  background: linear-gradient(135deg, var(--c-primary), var(--c-primary-dark));
+  color: #fff; box-shadow: var(--shadow-sm); transition: transform .12s, box-shadow .15s;
+  width: 100%;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn.secondary {
+  background: var(--c-surface); color: var(--c-accent);
+  border: 1px solid var(--c-border);
+}
+.btn-row { display: flex; gap: 10px; }
+.toggle-group {
+  display: inline-flex; background: var(--c-surface-2); padding: 4px;
+  border-radius: var(--r-md); gap: 4px; flex-wrap: wrap;
+}
+.toggle-group button {
+  border: none; background: transparent; padding: 8px 14px;
+  border-radius: 8px; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 600; color: var(--c-text-muted);
+  transition: all .15s;
+}
+.toggle-group button.active { background: var(--c-accent); color: #fff; }
 
-/* ── INFO BOX ───────────────────────────────────── */
-.info-box {
-  background: var(--yellow-bg); border: 1px solid #fde68a;
-  border-radius: var(--radius-sm); padding: 12px 16px;
-  font-size: .82rem; color: var(--yellow); margin-bottom: 24px;
+/* === KPI CARDS === */
+.kpi-card {
+  background: var(--c-surface-2); border-radius: var(--r-md);
+  padding: 18px 18px; border: 1px solid var(--c-border);
+  position: relative; overflow: hidden;
+}
+.kpi-card.highlight {
+  background: linear-gradient(135deg, #0a4d8c 0%, #1a2233 100%);
+  color: #fff; border: none;
+}
+.kpi-card.highlight .kpi-label { color: rgba(255,255,255,.7); }
+.kpi-card.success { background: linear-gradient(135deg, #1f8a4c, #176c3c); color: #fff; border: none; }
+.kpi-card.success .kpi-label { color: rgba(255,255,255,.8); }
+.kpi-card.warn { background: linear-gradient(135deg, #e0a800, #b88a00); color: #fff; border: none; }
+.kpi-card.warn .kpi-label { color: rgba(255,255,255,.85); }
+.kpi-card.danger { background: linear-gradient(135deg, #c0392b, #922c20); color: #fff; border: none; }
+.kpi-card.danger .kpi-label { color: rgba(255,255,255,.85); }
+.kpi-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; color: var(--c-text-muted); }
+.kpi-value { font-size: 24px; font-weight: 800; line-height: 1.15; }
+.kpi-sub { font-size: 12px; opacity: .8; margin-top: 4px; }
+
+/* === BREAKDOWN TABLE === */
+.breakdown {
+  background: var(--c-surface-2); border-radius: var(--r-md);
+  padding: 18px; border: 1px solid var(--c-border);
+}
+.breakdown h3 { margin: 0 0 14px; font-size: 16px; }
+.breakdown-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; border-bottom: 1px dashed var(--c-border); font-size: 14px;
+}
+.breakdown-row:last-child { border-bottom: none; }
+.breakdown-row .lbl { color: var(--c-text-muted); }
+.breakdown-row .val { font-weight: 700; font-family: "SF Mono", "Roboto Mono", monospace; }
+.breakdown-row.total { font-size: 16px; padding-top: 14px; border-top: 2px solid var(--c-text); border-bottom: none; margin-top: 6px; }
+.breakdown-row.negative .val { color: var(--c-danger); }
+.breakdown-row.positive .val { color: var(--c-positive); }
+
+/* === CHART CONTAINER === */
+.chart-card {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--r-md); padding: 20px;
+}
+.chart-card h3 { margin: 0 0 14px; font-size: 16px; }
+.chart-wrap { position: relative; height: 280px; }
+.chart-wrap.tall { height: 360px; }
+
+/* === NOTE / DISCLAIMER === */
+.note {
+  background: #fffbed; border: 1px solid #f3e2a8; color: #6f5300;
+  padding: 12px 14px; border-radius: var(--r-sm); font-size: 13px;
   display: flex; gap: 10px; align-items: flex-start;
 }
-.info-box::before { content: 'ℹ️'; flex-shrink: 0; margin-top: 1px; }
+.note.info { background: #eef5fc; border-color: #c5dbef; color: #0a4d8c; }
+.note.success { background: #eaf7ee; border-color: #b4dec1; color: #176c3c; }
+.note.danger { background: #fbe9e7; border-color: #f0b5ad; color: #8a2418; }
 
-/* ── FORM GRID ──────────────────────────────────── */
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-@media(max-width:540px) { .grid { grid-template-columns: 1fr; } }
+/* === SCENARIO BLOCK === */
+.scenario-block { margin-top: 28px; }
+.scenario-block h3 { font-size: 18px; margin-bottom: 14px; }
+.scenario-card {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--r-md); padding: 16px;
+  border-left: 4px solid var(--c-text-muted);
+}
+.scenario-card.optimistic { border-left-color: var(--c-positive); }
+.scenario-card.base { border-left-color: var(--c-accent); }
+.scenario-card.pessimistic { border-left-color: var(--c-danger); }
+.scenario-card h4 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .04em; }
+.scenario-card .big { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.scenario-card .sub { font-size: 12px; color: var(--c-text-muted); }
 
-.field label {
-  display: block; font-size: .78rem; font-weight: 600;
-  color: var(--muted); letter-spacing: .04em; text-transform: uppercase;
-  margin-bottom: 7px;
+/* === FOOTER === */
+footer.site-footer {
+  text-align: center; padding: 40px 20px;
+  color: var(--c-text-muted); font-size: 13px;
 }
-.field input, .field select {
-  width: 100%; padding: 11px 14px;
-  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-  font-family: inherit; font-size: .95rem; color: var(--dark);
-  background: var(--bg); transition: border-color .15s, box-shadow .15s;
-  appearance: none;
-}
-.field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-.field input:focus, .field select:focus {
-  outline: none; border-color: var(--red);
-  box-shadow: 0 0 0 3px rgba(230,57,70,.1);
-  background: #fff;
-}
+footer.site-footer .src { margin-top: 10px; font-size: 12px; opacity: .8; }
 
-/* ── SLIDER ─────────────────────────────────────── */
-.slider-field label {
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: .78rem; font-weight: 600; color: var(--muted);
-  letter-spacing: .04em; text-transform: uppercase; margin-bottom: 10px;
+/* === COLLAPSIBLE EXPLAIN === */
+.explain { margin-top: 24px; }
+.explain summary {
+  cursor: pointer; font-weight: 700; padding: 12px 16px;
+  background: var(--c-surface-2); border-radius: var(--r-sm);
+  list-style: none; display: flex; justify-content: space-between; align-items: center;
 }
-.slider-field label span { color: var(--dark); font-size: .95rem; text-transform: none; letter-spacing: 0; font-weight: 700; }
-input[type=range] {
-  width: 100%; height: 4px; accent-color: var(--red);
-  border-radius: 99px; cursor: pointer;
+.explain summary::after { content: "+"; font-size: 22px; font-weight: 300; color: var(--c-accent); }
+.explain[open] summary::after { content: "–"; }
+.explain-body {
+  padding: 16px 4px; font-size: 14px; color: var(--c-text);
 }
+.explain-body h4 { margin-top: 14px; margin-bottom: 6px; font-size: 14px; }
+.explain-body ul { padding-left: 22px; margin: 6px 0; }
+.explain-body li { margin-bottom: 4px; }
 
-/* ── BUTTON ─────────────────────────────────────── */
-.btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--red); color: #fff; border: none;
-  padding: 13px 28px; border-radius: var(--radius-sm);
-  font-family: inherit; font-size: .95rem; font-weight: 600;
-  cursor: pointer; margin-top: 24px;
-  transition: background .15s, transform .1s, box-shadow .15s;
-  box-shadow: 0 2px 8px rgba(230,57,70,.3);
+/* === MISC === */
+.muted { color: var(--c-text-muted); }
+.tag {
+  display: inline-block; background: var(--c-surface-2); border: 1px solid var(--c-border);
+  border-radius: 999px; padding: 3px 10px; font-size: 12px; color: var(--c-text-muted);
+  margin: 2px 4px 2px 0;
 }
-.btn:hover { background: #c1121f; box-shadow: 0 4px 16px rgba(230,57,70,.4); transform: translateY(-1px); }
-.btn:active { transform: translateY(0); }
-.btn::after { content: '→'; font-size: 1rem; }
-
-/* ── RESULT WRAPPER ─────────────────────────────── */
-.result { display: none; margin-top: 28px; }
-.result.show { display: block; }
-
-/* ── LOHNAUSWEIS ────────────────────────────────── */
-.la-card {
-  border-radius: var(--radius); border: 1px solid var(--border);
-  overflow: hidden; margin-bottom: 16px;
-}
-.la-head {
-  background: var(--dark); color: #fff;
-  padding: 14px 20px; font-weight: 700; font-size: .9rem;
-  display: flex; align-items: center; gap: 8px;
-}
-.la-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 11px 20px; border-bottom: 1px solid var(--border);
-  font-size: .9rem;
-}
-.la-row:last-child { border-bottom: none; }
-.la-row:nth-child(even) { background: var(--bg); }
-.la-row.section-label { background: none; padding: 8px 20px 4px; }
-.la-row.section-label span { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.la-row.indent span:first-child { padding-left: 16px; color: var(--body); }
-.la-row .deduct { color: var(--red); font-weight: 600; }
-.la-row.total {
-  background: var(--green-bg); border-top: 2px solid #a7f3d0;
-  padding: 14px 20px;
-}
-.la-row.total span:first-child { font-weight: 700; color: var(--dark); }
-.la-row.total span:last-child { font-weight: 800; color: var(--green); font-size: 1.1rem; }
-
-/* ── STEUER BOX ─────────────────────────────────── */
-.st-card {
-  border-radius: var(--radius); border: 1px solid #fde68a;
-  overflow: hidden; margin-bottom: 16px;
-}
-.st-head {
-  background: var(--yellow-bg); padding: 14px 20px;
-  font-weight: 700; font-size: .9rem; color: var(--yellow);
-  display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #fde68a;
-}
-.st-sub { padding: 8px 20px; font-size: .78rem; color: var(--muted); background: #fff; border-bottom: 1px solid var(--border); }
-.st-row {
-  display: flex; justify-content: space-between;
-  padding: 11px 20px; border-bottom: 1px solid var(--border);
-  font-size: .9rem; background: #fff;
-}
-.st-row:nth-child(even) { background: var(--yellow-bg); }
-.st-row:last-child { border-bottom: none; }
-.st-row.total {
-  background: var(--yellow-bg); border-top: 2px solid #fde68a;
-  padding: 14px 20px;
-}
-.st-row.total span:first-child { font-weight: 700; color: var(--dark); }
-.st-row.total span:last-child { font-weight: 800; color: var(--yellow); font-size: 1.05rem; }
-.st-row.effnetto span:last-child { color: var(--green); font-weight: 800; }
-.st-disclaimer {
-  padding: 10px 20px; font-size: .75rem; color: var(--muted);
-  background: var(--bg); border-top: 1px solid var(--border);
-}
-
-/* ── STAT CHIPS ─────────────────────────────────── */
-.chips { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-.chip {
-  flex: 1; min-width: 120px;
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 16px;
-  text-align: center; box-shadow: var(--shadow-sm);
-}
-.chip .val { font-size: 1.3rem; font-weight: 800; color: var(--dark); letter-spacing: -.02em; }
-.chip .val.green { color: var(--green); }
-.chip .val.red   { color: var(--red); }
-.chip .lbl { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 3px; }
-
-/* ── BAR ────────────────────────────────────────── */
-.bar-wrap { margin-top: 6px; }
-.bar-labels { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
-.bar-track { height: 8px; border-radius: 99px; background: var(--border); overflow: hidden; }
-.bar-fill  { height: 100%; border-radius: 99px; transition: width .6s cubic-bezier(.4,0,.2,1); }
-
-/* ── BEWERTUNG ──────────────────────────────────── */
-.bewertung {
-  padding: 14px 18px; border-radius: var(--radius-sm);
-  font-weight: 600; font-size: .9rem; margin-top: 16px;
-  display: flex; align-items: center; gap: 10px;
-}
-
-footer {
-  text-align: center; color: var(--muted); font-size: .78rem;
-  padding: 32px 20px; border-top: 1px solid var(--border);
-  background: var(--card);
-}
-footer strong { color: var(--body); }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
+.section-h { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--c-text-muted); margin: 22px 0 10px; }
 </style>
 </head>
 <body>
 
-<!-- HERO -->
-<header class="hero">
-  <div class="hero-badge">🇨🇭 Schweizer Finanz-Tools 2024</div>
-  <h1>Deine Finanzen.<br><span>Klar & einfach.</span></h1>
-  <p>Kostenlose Rechner für Lohn, Steuern, Kredit, Miete und Sparziele – präzise auf die Schweiz zugeschnitten.</p>
-</header>
+<div class="container">
 
-<!-- NAV PILLS -->
-<div class="nav-wrap">
-  <div class="nav-pills">
-    <button class="active" onclick="show('netto',this)">💼 Nettolohn</button>
-    <button onclick="show('kredit',this)">🏦 Kredit</button>
-    <button onclick="show('miete',this)">🏠 Miete</button>
-    <button onclick="show('sparen',this)">📈 Sparen</button>
-    <button onclick="show('budget',this)">📊 Budget</button>
-  </div>
-</div>
-
-<main>
-
-<!-- ══════════ NETTOLOHN ══════════ -->
-<div class="tool active" id="netto">
-  <div class="card">
-    <div class="card-header">
-      <h2>💼 Lohnausweis-Rechner</h2>
-      <p>Sozialabzüge nach CH-Standard 2024 · Steuern separat ausgewiesen</p>
+  <!-- HEADER -->
+  <header class="hero">
+    <span class="flag-badge"><span class="ch-cross"></span>Schweizer Finanz-Tools · Daten 2026</span>
+    <h1 class="hero-title">Deine Finanzen.<br>Klar. Schweizerisch. Präzise.</h1>
+    <p class="hero-sub">Kostenlose Rechner für Nettolohn, Hypothek, Miete, Sparen und Budget – auf die Schweiz zugeschnitten, mit aktuellen Werten und ehrlichen Annahmen.</p>
+    <div class="hero-kpi">
+      <div><strong>5</strong>Rechner-Module</div>
+      <div><strong>12+</strong>Diagramme</div>
+      <div><strong>26</strong>Kantone</div>
+      <div><strong>2026</strong>Datenstand</div>
     </div>
-    <div class="info-box">
-      CH-Bürger & C-Ausweis: Steuern werden <strong>nicht</strong> vom Lohn abgezogen – sie werden jährlich via Steuererklärung bezahlt.
+  </header>
+
+  <!-- TAB NAV -->
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="lohn" role="tab"><span class="tab-icon">💼</span>Nettolohn</button>
+    <button class="tab" data-tab="hypo" role="tab"><span class="tab-icon">🏦</span>Kredit & Hypothek</button>
+    <button class="tab" data-tab="miete" role="tab"><span class="tab-icon">🏠</span>Miete</button>
+    <button class="tab" data-tab="sparen" role="tab"><span class="tab-icon">📈</span>Sparen & 3a</button>
+    <button class="tab" data-tab="budget" role="tab"><span class="tab-icon">📊</span>Budget</button>
+  </nav>
+
+  <!-- ============================================== -->
+  <!-- TAB 1: NETTOLOHN                               -->
+  <!-- ============================================== -->
+  <section class="panel active" id="panel-lohn" role="tabpanel">
+    <div class="panel-header">
+      <h2>💼 Lohnausweis-Rechner 2026</h2>
+      <p>AHV/IV/EO, ALV (inkl. Solidaritätsbeitrag), BVG, NBU und geschätzte Steuern – nach CH-Standard 2026.</p>
     </div>
-    <div class="grid">
-      <div class="field">
-        <label>Bruttolohn / Monat</label>
-        <input type="number" id="n-brutto" value="8400" min="0">
+
+    <div class="note info">ℹ️ CH-Bürger und C-Ausweis: Steuern werden <strong>nicht</strong> vom Lohn abgezogen – sie werden jährlich via Steuererklärung abgerechnet. B-Ausweis: Quellensteuer wird hier separat ausgewiesen.</div>
+
+    <div class="grid grid-2" style="margin-top: 20px;">
+      <!-- LINKS: Inputs -->
+      <div>
+        <div class="section-h">Eingaben</div>
+
+        <div class="field">
+          <label>Bruttolohn / Monat (CHF)</label>
+          <input type="number" id="lohn-brutto" value="7500" min="0" step="100">
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Kanton</label>
+            <select id="lohn-kanton"></select>
+          </div>
+          <div class="field">
+            <label>Zivilstand</label>
+            <select id="lohn-zivilstand">
+              <option value="ledig">Ledig</option>
+              <option value="verheiratet1">Verheiratet (Alleinverdiener)</option>
+              <option value="verheiratet2">Verheiratet (Doppelverdiener)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Kinder</label>
+            <select id="lohn-kinder">
+              <option value="0">Keine</option>
+              <option value="1">1 Kind</option>
+              <option value="2">2 Kinder</option>
+              <option value="3">3+ Kinder</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Kirchensteuer</label>
+            <select id="lohn-kirche">
+              <option value="0">Nein</option>
+              <option value="1">Ja</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Altersgruppe (BVG)</label>
+            <select id="lohn-alter">
+              <option value="0.07">25–34 (7%)</option>
+              <option value="0.10" selected>35–44 (10%)</option>
+              <option value="0.15">45–54 (15%)</option>
+              <option value="0.18">55–65 (18%)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Ausweis</label>
+            <select id="lohn-ausweis">
+              <option value="ch">CH-Bürger / C-Ausweis</option>
+              <option value="b">B-Ausweis (Quellensteuer)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>13. Monatslohn</label>
+            <select id="lohn-13">
+              <option value="1">Ja</option>
+              <option value="0">Nein</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>NBU-Satz % <span class="help" title="Nichtberufsunfall, branchenabhängig. Typisch 1.0–2.0% des Bruttolohns. Standard: 1.4%">?</span></label>
+            <input type="number" id="lohn-nbu" value="1.4" step="0.1" min="0" max="3">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Säule 3a-Einzahlung / Jahr (CHF) <span class="help" title="Max. 2026: CHF 7'258 mit PK. Senkt das steuerbare Einkommen.">?</span></label>
+          <input type="number" id="lohn-3a" value="0" min="0" max="7258" step="100">
+        </div>
+
+        <button class="btn" onclick="berechneLohn()">Berechnen</button>
       </div>
-      <div class="field">
-        <label>Kanton</label>
-        <select id="n-kanton" onchange="fillGemeinden()">
-          <option value="zh">Zürich</option><option value="zg">Zug</option>
-          <option value="be">Bern</option><option value="lu">Luzern</option>
-          <option value="ag">Aargau</option><option value="bs">Basel-Stadt</option>
-          <option value="sg">St. Gallen</option><option value="so">Solothurn</option>
-          <option value="tg">Thurgau</option><option value="ge">Genf</option>
-          <option value="vd">Waadt</option><option value="vs">Wallis</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Gemeinde</label>
-        <select id="n-gemeinde"></select>
-      </div>
-      <div class="field">
-        <label>Zivilstand</label>
-        <select id="n-zivilstand">
-          <option value="single">Ledig</option>
-          <option value="verheiratet">Verheiratet (Alleinverdiener)</option>
-          <option value="verheiratet2">Verheiratet (Doppelverdiener)</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Kinder</label>
-        <select id="n-kinder">
-          <option value="0">Keine</option><option value="1">1 Kind</option>
-          <option value="2">2 Kinder</option><option value="3">3+ Kinder</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Kirchensteuer</label>
-        <select id="n-kirche"><option value="0">Nein</option><option value="1">Ja</option></select>
-      </div>
-      <div class="field">
-        <label>Alter (BVG-Schätzung)</label>
-        <select id="n-alter">
-          <option value="7">25–34 Jahre (~7%)</option>
-          <option value="10" selected>35–44 Jahre (~10%)</option>
-          <option value="15">45–54 Jahre (~15%)</option>
-          <option value="18">55–65 Jahre (~18%)</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Ausweis / Steuerstatus</label>
-        <select id="n-ausweis">
-          <option value="c">CH-Bürger / C-Ausweis</option>
-          <option value="b">B-Ausweis / Grenzgänger</option>
-        </select>
-      </div>
-      <div class="field" style="grid-column:1/-1">
-        <label>13. Monatslohn</label>
-        <div style="display:flex;gap:10px;margin-top:2px">
-          <button type="button" id="btn-13-nein" onclick="set13(false)" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:inherit;font-size:.9rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s">Nein</button>
-          <button type="button" id="btn-13-ja"   onclick="set13(true)"  style="flex:1;padding:10px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:inherit;font-size:.9rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s">Ja – 13. Monatslohn</button>
+
+      <!-- RECHTS: Outputs -->
+      <div>
+        <div class="section-h">Resultate (monatlich)</div>
+
+        <div class="breakdown">
+          <h3>📄 Lohnabrechnung – pro Monat</h3>
+          <div class="breakdown-row"><span class="lbl">Bruttolohn (inkl. 13. ML anteilig)</span><span class="val" id="lo-brutto">–</span></div>
+          <div class="breakdown-row negative"><span class="lbl">AHV / IV / EO (5.30%)</span><span class="val" id="lo-ahv">–</span></div>
+          <div class="breakdown-row negative"><span class="lbl">ALV (1.10%, bis CHF 148'200)</span><span class="val" id="lo-alv">–</span></div>
+          <div class="breakdown-row negative"><span class="lbl">ALV-Solidarität (0.50%, über CHF 148'200)</span><span class="val" id="lo-alvsol">–</span></div>
+          <div class="breakdown-row negative"><span class="lbl">BVG / Pensionskasse <span id="lo-bvg-pct"></span></span><span class="val" id="lo-bvg">–</span></div>
+          <div class="breakdown-row negative"><span class="lbl">NBU (Nichtberufsunfall)</span><span class="val" id="lo-nbu">–</span></div>
+          <div class="breakdown-row negative" id="lo-row-qst" style="display:none"><span class="lbl">Quellensteuer (B-Ausweis)</span><span class="val" id="lo-qst">–</span></div>
+          <div class="breakdown-row total positive"><span class="lbl">✅ Nettolohn ausbezahlt</span><span class="val" id="lo-netto">–</span></div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top: 16px;">
+          <div class="kpi-card highlight">
+            <div class="kpi-label">Nettolohn / Jahr</div>
+            <div class="kpi-value" id="lo-jahres-netto">–</div>
+            <div class="kpi-sub" id="lo-jahres-sub">–</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Sozialabzüge / Jahr</div>
+            <div class="kpi-value" id="lo-jahres-sv">–</div>
+            <div class="kpi-sub">Total SV-Beiträge</div>
+          </div>
         </div>
       </div>
     </div>
-    <button class="btn" onclick="calcNetto()">Berechnen</button>
 
-    <div class="result" id="n-result">
-      <!-- Lohnausweis -->
-      <div class="la-card">
-        <div class="la-head">📄 Lohnausweis – monatlich</div>
-        <div class="la-row"><span><strong>Bruttolohn</strong></span><span id="r-brutto">–</span></div>
-        <div class="la-row section-label"><span>Sozialversicherungsabzüge</span></div>
-        <div class="la-row indent"><span>AHV / IV / EO (5.30%)</span><span class="deduct" id="r-ahv">–</span></div>
-        <div class="la-row indent"><span>ALV Arbeitslosenvers. (1.10%)</span><span class="deduct" id="r-alv">–</span></div>
-        <div class="la-row indent"><span>BVG / Pensionskasse AN</span><span class="deduct" id="r-pk">–</span></div>
-        <div class="la-row indent"><span>NBU Nichtberufsunfall (0.47%)</span><span class="deduct" id="r-nbu">–</span></div>
-        <div class="la-row indent" id="r-qst-row" style="display:none"><span>Quellensteuer (B-Ausweis)</span><span class="deduct" id="r-qst">–</span></div>
-        <div class="la-row total"><span>✅ Nettolohn (ausbezahlt)</span><span id="r-netto">–</span></div>
+    <!-- STEUERN -->
+    <div class="section-h" style="margin-top:28px">🏛️ Geschätzte Steuern (CH/C-Ausweis: separat zu zahlen)</div>
+    <div class="grid grid-3">
+      <div class="kpi-card warn">
+        <div class="kpi-label">Steuern total / Jahr</div>
+        <div class="kpi-value" id="st-total">–</div>
+        <div class="kpi-sub" id="st-saetze">–</div>
       </div>
-
-      <!-- Jahresübersicht -->
-      <div class="la-card">
-        <div class="la-head">📅 Jahresübersicht</div>
-        <div class="la-row"><span><strong>Jahresbruttolohn</strong></span><span id="r-jbrutto">–</span></div>
-        <div class="la-row indent"><span>Sozialabzüge gesamt</span><span class="deduct" id="r-jsozial">–</span></div>
-        <div class="la-row total"><span>Jahresnettolohn (ausbezahlt)</span><span id="r-jnetto">–</span></div>
+      <div class="kpi-card">
+        <div class="kpi-label">Monatlich zurücklegen</div>
+        <div class="kpi-value" id="st-monat">–</div>
+        <div class="kpi-sub">Empfehlung Steuersparkonto</div>
       </div>
-
-      <!-- Steuern -->
-      <div class="st-card" id="r-steuer-box">
-        <div class="st-head">🏛️ Geschätzte Steuern – jährlich separat zu bezahlen</div>
-        <div class="st-sub" id="r-steuer-sub">–</div>
-        <div class="st-row"><span>Direkte Bundessteuer</span><span id="r-st-bund">–</span></div>
-        <div class="st-row"><span>Kantonssteuer</span><span id="r-st-kanton">–</span></div>
-        <div class="st-row"><span>Gemeindesteuer</span><span id="r-st-gemeinde">–</span></div>
-        <div class="st-row" id="r-st-kirche-row"><span>Kirchensteuer</span><span id="r-st-kirche">–</span></div>
-        <div class="st-row" id="r-st-kinder-row"><span>Kinderabzug (geschätzt)</span><span id="r-st-kinder">–</span></div>
-        <div class="st-row total"><span>Total Steuern / Jahr</span><span id="r-st-total">–</span></div>
-        <div class="st-row"><span style="color:var(--muted)">→ Monatlich zurücklegen</span><span id="r-st-monat">–</span></div>
-        <div class="st-row effnetto"><span><strong>Effektiver Nettolohn nach Steuern</strong></span><span id="r-st-effnetto">–</span></div>
-        <div class="st-disclaimer">⚠️ Schätzung basierend auf Steuerfüssen 2024. Ohne individuelle Abzüge (3a, Berufskosten etc.).</div>
+      <div class="kpi-card success">
+        <div class="kpi-label">Effektiver Netto / Monat</div>
+        <div class="kpi-value" id="st-effektiv">–</div>
+        <div class="kpi-sub">Nach Steuern + SV</div>
       </div>
     </div>
-  </div>
+
+    <div class="breakdown" style="margin-top:16px;">
+      <h3>Aufschlüsselung Steuern</h3>
+      <div class="breakdown-row"><span class="lbl">Direkte Bundessteuer</span><span class="val" id="st-bund">–</span></div>
+      <div class="breakdown-row"><span class="lbl">Kantonssteuer</span><span class="val" id="st-kanton">–</span></div>
+      <div class="breakdown-row"><span class="lbl">Gemeindesteuer (Schätzung)</span><span class="val" id="st-gemeinde">–</span></div>
+      <div class="breakdown-row" id="st-row-kirche" style="display:none"><span class="lbl">Kirchensteuer</span><span class="val" id="st-kirche-v">–</span></div>
+      <div class="breakdown-row positive"><span class="lbl">– Kinderabzug (geschätzt)</span><span class="val" id="st-kind">–</span></div>
+      <div class="breakdown-row positive"><span class="lbl">– Säule 3a Steuerersparnis</span><span class="val" id="st-3a">–</span></div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="grid grid-2" style="margin-top:24px;">
+      <div class="chart-card">
+        <h3>Lohnzusammensetzung (Monat)</h3>
+        <div class="chart-wrap"><canvas id="chart-lohn-donut"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Brutto → Netto → nach Steuern</h3>
+        <div class="chart-wrap"><canvas id="chart-lohn-waterfall"></canvas></div>
+      </div>
+    </div>
+
+    <!-- SZENARIEN -->
+    <div class="scenario-block">
+      <h3>🎯 Szenarien – „Was wäre wenn…"</h3>
+      <div class="grid grid-3" id="lohn-szenarien">
+        <!-- gefüllt durch JS -->
+      </div>
+    </div>
+
+    <details class="explain">
+      <summary>📚 Wie wird gerechnet? Quellen & Annahmen</summary>
+      <div class="explain-body">
+        <h4>Sozialversicherungs-Beiträge 2026 (AN-Anteil)</h4>
+        <ul>
+          <li><strong>AHV/IV/EO 5.30%</strong> – AN-Anteil von gesamthaft 10.60% (BSV)</li>
+          <li><strong>ALV 1.10%</strong> bis Jahreslohn CHF 148'200, darüber <strong>0.50% Solidaritätsbeitrag</strong> (SECO)</li>
+          <li><strong>BVG</strong>: Altersgutschriften 25–34: 7%, 35–44: 10%, 45–54: 15%, 55–65: 18% des koord. Lohns. Koordinationsabzug 2026: CHF 26'460, Eintrittsschwelle CHF 22'680.</li>
+          <li><strong>NBU</strong> branchenabhängig 1–2% (Standardwert 1.4%; SUVA)</li>
+        </ul>
+        <h4>Steuern</h4>
+        <ul>
+          <li>Direkte Bundessteuer 2026: Vereinfachte Progression aus ESTV-Tarif (Ledige / Verheiratete)</li>
+          <li>Kantons- und Gemeindesteuer: Lineare Approximation mit kantonalem Faktor (siehe Quellen)</li>
+          <li>Säule-3a-Ersparnis = Einzahlung × geschätzter Grenzsteuersatz Kanton</li>
+        </ul>
+        <p class="muted">⚠️ Schätzung. Ohne individuelle Abzüge (Berufskosten, Liegenschaftsunterhalt, Schuldzinsen etc.). Für verbindliche Werte: ESTV-Steuerrechner oder kantonaler Online-Rechner.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- TAB 2: KREDIT / HYPOTHEK                       -->
+  <!-- ============================================== -->
+  <section class="panel" id="panel-hypo" role="tabpanel">
+    <div class="panel-header">
+      <h2>🏦 Kredit & Hypothek 2026</h2>
+      <p>Konsumkredit (Höchstzins 10% ab 1.1.2026) oder Hypothek mit Tragbarkeits- und Belehnungs-Check.</p>
+    </div>
+
+    <div class="toggle-group" id="hypo-mode" style="margin-bottom:20px">
+      <button class="active" data-mode="konsum">💳 Konsumkredit</button>
+      <button data-mode="hypo">🏠 Hypothek / Wohneigentum</button>
+    </div>
+
+    <!-- KONSUMKREDIT -->
+    <div id="kredit-konsum">
+      <div class="grid grid-2">
+        <div>
+          <div class="section-h">Eingaben</div>
+          <div class="field">
+            <label>Kreditsumme (CHF)</label>
+            <input type="range" id="k-summe" min="1000" max="80000" step="1000" value="20000">
+            <div class="range-row"><span>CHF 1'000</span><span id="k-summe-v">CHF 20'000</span><span>CHF 80'000</span></div>
+          </div>
+          <div class="field">
+            <label>Laufzeit (Monate)</label>
+            <input type="range" id="k-laufzeit" min="6" max="84" step="6" value="60">
+            <div class="range-row"><span>6 Mt</span><span id="k-laufzeit-v">60 Mt</span><span>84 Mt</span></div>
+          </div>
+          <div class="field">
+            <label>Zinssatz p.a. (%) <span class="help" title="VKKV 2026: max. 10.0% (Barkredit), 12% (Kreditkarte)">?</span></label>
+            <input type="range" id="k-zins" min="1" max="12" step="0.1" value="6.9">
+            <div class="range-row"><span>1%</span><span id="k-zins-v">6.9%</span><span>12%</span></div>
+          </div>
+          <div class="field">
+            <label>Vorlage</label>
+            <select id="k-vorlage">
+              <option value="">– Eigene Werte –</option>
+              <option value="6.9">Barkredit Standard (~6.9%)</option>
+              <option value="4.9">Autokredit (~4.9%)</option>
+              <option value="10">Max. VKKV 2026 Barkredit (10%)</option>
+              <option value="12">Max. Kreditkarte (12%)</option>
+            </select>
+          </div>
+          <button class="btn" onclick="berechneKredit()">Berechnen</button>
+        </div>
+
+        <div>
+          <div class="section-h">Resultate</div>
+          <div class="grid grid-2">
+            <div class="kpi-card highlight">
+              <div class="kpi-label">Monatsrate</div>
+              <div class="kpi-value" id="k-rate">–</div>
+              <div class="kpi-sub" id="k-rate-sub">–</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Gesamtrückzahlung</div>
+              <div class="kpi-value" id="k-total">–</div>
+              <div class="kpi-sub">Inkl. Zinsen</div>
+            </div>
+            <div class="kpi-card warn">
+              <div class="kpi-label">Zinskosten</div>
+              <div class="kpi-value" id="k-zinsen">–</div>
+              <div class="kpi-sub" id="k-zinsen-sub">–</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Effektive Mehrkosten</div>
+              <div class="kpi-value" id="k-mehr">–</div>
+              <div class="kpi-sub">vs. Kreditsumme</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:24px">
+        <div class="chart-card">
+          <h3>Tilgungsverlauf (Restschuld pro Monat)</h3>
+          <div class="chart-wrap"><canvas id="chart-kredit-tilgung"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Zinssatz-Vergleich (gleiche Summe & Laufzeit)</h3>
+          <div class="chart-wrap"><canvas id="chart-kredit-vergleich"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HYPOTHEK -->
+    <div id="kredit-hypo" style="display:none">
+      <div class="grid grid-2">
+        <div>
+          <div class="section-h">Liegenschaft & Finanzierung</div>
+          <div class="field">
+            <label>Kaufpreis Liegenschaft (CHF)</label>
+            <input type="number" id="h-preis" value="900000" step="10000">
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Eigenkapital (CHF) <span class="help" title="Mind. 20% Verkehrswert, davon 10% hart (nicht aus PK)">?</span></label>
+              <input type="number" id="h-ek" value="180000" step="5000">
+            </div>
+            <div class="field">
+              <label>davon Pensionskassen-Bezug</label>
+              <input type="number" id="h-ek-pk" value="0" step="5000">
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Hypothekarzins p.a. % <span class="help" title="Marktwert Q2 2026: 5J Fest ~1.30%, 10J ~1.75%, SARON ~0.90%">?</span></label>
+              <input type="number" id="h-zins" value="1.3" step="0.05">
+            </div>
+            <div class="field">
+              <label>Produkt-Vorlage</label>
+              <select id="h-vorlage">
+                <option value="1.3">Festhypothek 5J (1.3%)</option>
+                <option value="1.75">Festhypothek 10J (1.75%)</option>
+                <option value="0.9">SARON (0.9%)</option>
+                <option value="">Eigener Zinssatz</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Bruttoeinkommen Haushalt / Jahr (CHF)</label>
+            <input type="number" id="h-eink" value="140000" step="5000">
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Kalk. Zins (Tragbarkeit) %</label>
+              <input type="number" id="h-kalkzins" value="5" step="0.1">
+            </div>
+            <div class="field">
+              <label>Nebenkosten % (Liegenschaft)</label>
+              <input type="number" id="h-nk" value="1" step="0.1">
+            </div>
+          </div>
+          <button class="btn" onclick="berechneHypothek()">Berechnen</button>
+        </div>
+
+        <div>
+          <div class="section-h">Tragbarkeit & Belehnung</div>
+
+          <div class="kpi-card" id="h-ampel" style="margin-bottom:14px">
+            <div class="kpi-label" id="h-ampel-status">–</div>
+            <div class="kpi-value" id="h-ampel-text" style="font-size:18px">–</div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="kpi-card">
+              <div class="kpi-label">Belehnung</div>
+              <div class="kpi-value" id="h-belehnung">–</div>
+              <div class="kpi-sub" id="h-belehnung-sub">–</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Tragbarkeitsquote</div>
+              <div class="kpi-value" id="h-tragquote">–</div>
+              <div class="kpi-sub">Ziel: ≤ 33%</div>
+            </div>
+          </div>
+
+          <div class="breakdown" style="margin-top:14px">
+            <h3>Kalkulatorische Belastung / Jahr</h3>
+            <div class="breakdown-row"><span class="lbl">Hypozins kalkulatorisch (5%)</span><span class="val" id="h-kalkzins-v">–</span></div>
+            <div class="breakdown-row"><span class="lbl">Amortisation 2. Hypothek</span><span class="val" id="h-amort">–</span></div>
+            <div class="breakdown-row"><span class="lbl">Nebenkosten (1% Liegenschaft)</span><span class="val" id="h-nk-v">–</span></div>
+            <div class="breakdown-row total"><span class="lbl">Total kalkulatorische Last</span><span class="val" id="h-last">–</span></div>
+          </div>
+
+          <div class="breakdown" style="margin-top:14px">
+            <h3>Effektive Kosten / Jahr (heutiger Zins)</h3>
+            <div class="breakdown-row"><span class="lbl">Effektive Zinskosten</span><span class="val" id="h-effzins">–</span></div>
+            <div class="breakdown-row"><span class="lbl">Amortisation (pflichtig)</span><span class="val" id="h-effamort">–</span></div>
+            <div class="breakdown-row"><span class="lbl">Nebenkosten</span><span class="val" id="h-effnk">–</span></div>
+            <div class="breakdown-row total"><span class="lbl">Total effektive Last / Jahr</span><span class="val" id="h-efftotal">–</span></div>
+            <div class="breakdown-row positive"><span class="lbl">→ Monatlich</span><span class="val" id="h-effmonat">–</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:24px">
+        <div class="chart-card">
+          <h3>Finanzierungsstruktur</h3>
+          <div class="chart-wrap"><canvas id="chart-hypo-struktur"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Zinssensitivität (jährliche Kosten)</h3>
+          <div class="chart-wrap"><canvas id="chart-hypo-sens"></canvas></div>
+        </div>
+      </div>
+
+      <!-- SZENARIEN HYPOTHEK -->
+      <div class="scenario-block">
+        <h3>🎯 Szenarien Zinsentwicklung – 15 Jahre</h3>
+        <div class="grid grid-3" id="hypo-szenarien"></div>
+      </div>
+    </div>
+
+    <details class="explain">
+      <summary>📚 Wie wird gerechnet? Quellen & Annahmen</summary>
+      <div class="explain-body">
+        <h4>Konsumkredit (VKKG / VKKV)</h4>
+        <ul>
+          <li>Annuitäten-Formel: Rate = K × (i × (1+i)^n) / ((1+i)^n − 1), i = Zins/12</li>
+          <li>Höchstzinssatz 1.1.2026: <strong>10.0%</strong> Barkredit, <strong>12.0%</strong> Kreditkarte (EJPD)</li>
+        </ul>
+        <h4>Hypothek</h4>
+        <ul>
+          <li><strong>Tragbarkeit</strong>: (kalk. Zins 5% × Hypo + Amort. 2. Hypo + 1% Nebenkosten) ≤ 1/3 Bruttoeinkommen (FINMA / SBVg-Standard)</li>
+          <li><strong>Belehnung</strong>: 1. Hypothek bis 66.6% Verkehrswert, 2. Hypothek 66.6–80%</li>
+          <li><strong>Amortisation</strong> 2. Hypothek: innert 15 Jahren oder bis Alter 65 (das frühere)</li>
+          <li><strong>Eigenkapital</strong>: min. 20%, davon min. 10% hartes EK (nicht aus 2. Säule)</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- TAB 3: MIETE                                    -->
+  <!-- ============================================== -->
+  <section class="panel" id="panel-miete" role="tabpanel">
+    <div class="panel-header">
+      <h2>🏠 Miete – Budget, Kosten, Miete vs. Kauf</h2>
+      <p>Drittels-Regel, Nebenkostenrechner, Mietkaution-Sparplan und ein Vergleich Miete gegen Eigentum über 15 Jahre.</p>
+    </div>
+
+    <div class="grid grid-2">
+      <div>
+        <div class="section-h">Eingaben</div>
+        <div class="field">
+          <label>Bruttoeinkommen Haushalt / Monat (CHF)</label>
+          <input type="number" id="m-eink" value="9000" step="100">
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Nettomiete / Monat (CHF)</label>
+            <input type="number" id="m-netto" value="2200" step="50">
+          </div>
+          <div class="field">
+            <label>Nebenkosten akonto (CHF)</label>
+            <input type="number" id="m-nk" value="250" step="10">
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Kaution (Monatsmieten) <span class="help" title="Max. 3 Monatsmieten gemäss Art. 257e OR">?</span></label>
+            <input type="number" id="m-kaution" value="3" min="0" max="3" step="0.5">
+          </div>
+          <div class="field">
+            <label>Sparplan Kaution (Monate)</label>
+            <input type="number" id="m-spar" value="12" min="1" step="1">
+          </div>
+        </div>
+
+        <div class="section-h" style="margin-top:18px">Miete vs. Kauf Vergleich</div>
+        <div class="row-2">
+          <div class="field">
+            <label>Vergleichbarer Kaufpreis (CHF)</label>
+            <input type="number" id="m-kaufpreis" value="850000" step="10000">
+          </div>
+          <div class="field">
+            <label>Anlagedauer (Jahre)</label>
+            <input type="number" id="m-jahre" value="15" min="1" max="40">
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Mietzins-Steigerung % p.a.</label>
+            <input type="number" id="m-mietstg" value="1.5" step="0.1">
+          </div>
+          <div class="field">
+            <label>Wertsteigerung Immobilie % p.a.</label>
+            <input type="number" id="m-immostg" value="1.5" step="0.1">
+          </div>
+        </div>
+
+        <button class="btn" onclick="berechneMiete()">Analysieren</button>
+      </div>
+
+      <div>
+        <div class="section-h">Resultate</div>
+        <div class="grid grid-2">
+          <div class="kpi-card highlight">
+            <div class="kpi-label">Wohnkostenquote</div>
+            <div class="kpi-value" id="m-quote">–</div>
+            <div class="kpi-sub" id="m-quote-sub">Ziel: ≤ 33%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Bruttomiete / Monat</div>
+            <div class="kpi-value" id="m-bruttom">–</div>
+            <div class="kpi-sub">Inkl. NK akonto</div>
+          </div>
+          <div class="kpi-card success">
+            <div class="kpi-label">Verbleibend / Monat</div>
+            <div class="kpi-value" id="m-verbleibend">–</div>
+            <div class="kpi-sub">Für übrige Ausgaben</div>
+          </div>
+          <div class="kpi-card warn">
+            <div class="kpi-label">Kaution (Total)</div>
+            <div class="kpi-value" id="m-kaut-total">–</div>
+            <div class="kpi-sub" id="m-kaut-sub">–</div>
+          </div>
+        </div>
+
+        <div class="breakdown" style="margin-top:14px">
+          <h3>Jahreskosten Wohnen</h3>
+          <div class="breakdown-row"><span class="lbl">Nettomiete × 12</span><span class="val" id="m-jm">–</span></div>
+          <div class="breakdown-row"><span class="lbl">Nebenkosten × 12</span><span class="val" id="m-jnk">–</span></div>
+          <div class="breakdown-row"><span class="lbl">Hausrat-/Privathaftpflichtversicherung (Schätzung)</span><span class="val" id="m-vers">CHF 380</span></div>
+          <div class="breakdown-row"><span class="lbl">Serafe + Strom (Schätzung)</span><span class="val" id="m-medien">CHF 1'200</span></div>
+          <div class="breakdown-row total"><span class="lbl">Total Wohnkosten / Jahr</span><span class="val" id="m-jtotal">–</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:24px">
+      <div class="chart-card">
+        <h3>Miete vs. Eigentum – kumulierte Kosten (15J)</h3>
+        <div class="chart-wrap"><canvas id="chart-miete-vs-kauf"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Wohnkosten-Aufschlüsselung (Monat)</h3>
+        <div class="chart-wrap"><canvas id="chart-miete-donut"></canvas></div>
+      </div>
+    </div>
+
+    <div class="scenario-block">
+      <h3>🎯 Szenarien Mietzinsentwicklung</h3>
+      <div class="grid grid-3" id="miete-szenarien"></div>
+    </div>
+
+    <details class="explain">
+      <summary>📚 Annahmen & Tipps</summary>
+      <div class="explain-body">
+        <ul>
+          <li><strong>Drittels-Regel</strong>: Bruttomiete max. 1/3 des Bruttoeinkommens (Faustregel SKS/Mieterverband)</li>
+          <li><strong>Kaution</strong>: max. 3 Monatsmieten, gesetzlich auf separates Sperrkonto</li>
+          <li><strong>Referenzzinssatz</strong>: aktuell 1.25% (Stand März 2026, BWO). Bei Senkung Anspruch auf Mietzinsreduktion.</li>
+          <li><strong>Miete vs. Kauf</strong>: Eigentum hat Opportunitätskosten EK und Unterhalt (Faustregel 1% des Werts/Jahr).</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- TAB 4: SPAREN                                  -->
+  <!-- ============================================== -->
+  <section class="panel" id="panel-sparen" role="tabpanel">
+    <div class="panel-header">
+      <h2>📈 Sparen, Zinseszins & Säule 3a</h2>
+      <p>Zinseszinsrechner mit Inflation, 3a-Steuerersparnis sowie Sparzielrechner mit drei Marktszenarien.</p>
+    </div>
+
+    <div class="toggle-group" id="sparen-mode" style="margin-bottom:20px">
+      <button class="active" data-mode="zinses">📈 Zinseszins</button>
+      <button data-mode="3a">🏛️ Säule 3a-Optimierung</button>
+      <button data-mode="ziel">🎯 Sparziel</button>
+    </div>
+
+    <!-- ZINSESZINS -->
+    <div id="sparen-zinses">
+      <div class="grid grid-2">
+        <div>
+          <div class="section-h">Eingaben</div>
+          <div class="field">
+            <label>Startkapital (CHF)</label>
+            <input type="number" id="s-start" value="10000" step="500">
+          </div>
+          <div class="field">
+            <label>Monatliche Sparrate (CHF)</label>
+            <input type="number" id="s-rate" value="500" step="50">
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Rendite-Vorlage</label>
+              <select id="s-vorlage">
+                <option value="1">Sparkonto (~1.0%)</option>
+                <option value="1.5">Säule 3a (~1.5%)</option>
+                <option value="5" selected>ETF-Portfolio (~5.0%)</option>
+                <option value="7">Aktien historisch (~7.0%)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Rendite p.a. (%)</label>
+              <input type="number" id="s-rendite" value="5" step="0.1">
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Anlagedauer (Jahre)</label>
+              <input type="number" id="s-jahre" value="20" min="1" max="50">
+            </div>
+            <div class="field">
+              <label>Inflation p.a. (%)</label>
+              <input type="number" id="s-inflation" value="1.0" step="0.1">
+            </div>
+          </div>
+          <button class="btn" onclick="berechneSparen()">Berechnen</button>
+        </div>
+
+        <div>
+          <div class="section-h">Resultate</div>
+          <div class="grid grid-2">
+            <div class="kpi-card highlight">
+              <div class="kpi-label">Endkapital nominal</div>
+              <div class="kpi-value" id="s-end-nom">–</div>
+              <div class="kpi-sub" id="s-end-nom-sub">–</div>
+            </div>
+            <div class="kpi-card success">
+              <div class="kpi-label">Endkapital real (inflation-bereinigt)</div>
+              <div class="kpi-value" id="s-end-real">–</div>
+              <div class="kpi-sub">Kaufkraft heute</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Eingezahlt</div>
+              <div class="kpi-value" id="s-ein">–</div>
+              <div class="kpi-sub" id="s-ein-sub">–</div>
+            </div>
+            <div class="kpi-card warn">
+              <div class="kpi-label">Zinsgewinn</div>
+              <div class="kpi-value" id="s-gewinn">–</div>
+              <div class="kpi-sub" id="s-gewinn-sub">–</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:24px">
+        <div class="chart-card">
+          <h3>Vermögensentwicklung über Zeit</h3>
+          <div class="chart-wrap tall"><canvas id="chart-sparen-line"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Renditen-Vergleich (alle 4 Vorlagen, gleiche Sparrate)</h3>
+          <div class="chart-wrap tall"><canvas id="chart-sparen-vergleich"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SÄULE 3A -->
+    <div id="sparen-3a" style="display:none">
+      <div class="note info">💡 Säule 3a Maximum 2026: <strong>CHF 7'258</strong> (mit PK) oder <strong>20% des Erwerbseinkommens, max. CHF 36'288</strong> (ohne PK).</div>
+      <div class="grid grid-2" style="margin-top:16px">
+        <div>
+          <div class="section-h">Eingaben</div>
+          <div class="field">
+            <label>Jährliche Einzahlung 3a (CHF)</label>
+            <input type="number" id="a3-rate" value="7258" max="7258" step="100">
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Kanton (Grenzsteuersatz)</label>
+              <select id="a3-kanton">
+                <option value="0.18">Zug (~18%)</option>
+                <option value="0.22">Schwyz (~22%)</option>
+                <option value="0.28">Aargau (~28%)</option>
+                <option value="0.29" selected>Zürich (~29%)</option>
+                <option value="0.32">Luzern (~32%)</option>
+                <option value="0.33">Bern (~33%)</option>
+                <option value="0.34">Basel-Stadt (~34%)</option>
+                <option value="0.38">Genf (~38%)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Anlagedauer (Jahre)</label>
+              <input type="number" id="a3-jahre" value="30" min="1" max="45">
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Rendite p.a. (%)</label>
+              <input type="number" id="a3-rendite" value="2.5" step="0.1">
+            </div>
+            <div class="field">
+              <label>Kapitalbezugssteuer % (geschätzt) <span class="help" title="Reduzierte Sondersteuer beim Bezug, ca. 5–12% je Kanton">?</span></label>
+              <input type="number" id="a3-bezug" value="7" step="0.5">
+            </div>
+          </div>
+          <button class="btn" onclick="berechne3a()">Berechnen</button>
+        </div>
+
+        <div>
+          <div class="section-h">Resultate über Anlagedauer</div>
+          <div class="grid grid-2">
+            <div class="kpi-card highlight">
+              <div class="kpi-label">Endkapital 3a brutto</div>
+              <div class="kpi-value" id="a3-brutto">–</div>
+              <div class="kpi-sub" id="a3-brutto-sub">–</div>
+            </div>
+            <div class="kpi-card success">
+              <div class="kpi-label">Steuerersparnis kumuliert</div>
+              <div class="kpi-value" id="a3-spar">–</div>
+              <div class="kpi-sub">Über Einzahlungsjahre</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Kapitalbezugssteuer</div>
+              <div class="kpi-value" id="a3-bezugsteuer">–</div>
+              <div class="kpi-sub">Bei Auszahlung</div>
+            </div>
+            <div class="kpi-card warn">
+              <div class="kpi-label">Netto-Vorteil 3a</div>
+              <div class="kpi-value" id="a3-netto">–</div>
+              <div class="kpi-sub">Ersparnis − Bezugssteuer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-top:24px">
+        <h3>Säule 3a vs. freies Sparen (über Zeit)</h3>
+        <div class="chart-wrap tall"><canvas id="chart-3a-vergleich"></canvas></div>
+      </div>
+    </div>
+
+    <!-- SPARZIEL -->
+    <div id="sparen-ziel" style="display:none">
+      <div class="grid grid-2">
+        <div>
+          <div class="section-h">Sparziel definieren</div>
+          <div class="field">
+            <label>Sparziel (CHF)</label>
+            <input type="number" id="z-ziel" value="100000" step="1000">
+          </div>
+          <div class="field">
+            <label>Aktuelles Kapital (CHF)</label>
+            <input type="number" id="z-start" value="5000" step="500">
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Zieldauer (Jahre)</label>
+              <input type="number" id="z-jahre" value="10" min="1" max="40">
+            </div>
+            <div class="field">
+              <label>Rendite p.a. (%)</label>
+              <input type="number" id="z-rendite" value="3" step="0.1">
+            </div>
+          </div>
+          <button class="btn" onclick="berechneZiel()">Sparrate berechnen</button>
+        </div>
+        <div>
+          <div class="section-h">Was du brauchst</div>
+          <div class="kpi-card highlight" style="margin-bottom:14px">
+            <div class="kpi-label">Monatliche Sparrate</div>
+            <div class="kpi-value" id="z-rate">–</div>
+            <div class="kpi-sub" id="z-rate-sub">Damit erreichst du dein Ziel</div>
+          </div>
+          <div class="grid grid-2">
+            <div class="kpi-card success">
+              <div class="kpi-label">Davon Eigenleistung</div>
+              <div class="kpi-value" id="z-eigen">–</div>
+            </div>
+            <div class="kpi-card warn">
+              <div class="kpi-label">Zinsgewinn</div>
+              <div class="kpi-value" id="z-zins">–</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card" style="margin-top:24px">
+        <h3>Pfad zum Sparziel</h3>
+        <div class="chart-wrap tall"><canvas id="chart-ziel-line"></canvas></div>
+      </div>
+    </div>
+
+    <div class="scenario-block">
+      <h3>🎯 Marktszenarien (Endkapital über deine Anlagedauer)</h3>
+      <div class="grid grid-3" id="sparen-szenarien"></div>
+    </div>
+
+    <details class="explain">
+      <summary>📚 Wie wird gerechnet? Quellen & Annahmen</summary>
+      <div class="explain-body">
+        <ul>
+          <li><strong>Zinseszins</strong>: monatliche Verzinsung; Sparraten jeweils zum Monatsende. Formel: FV = K₀(1+i)ⁿ + R·((1+i)ⁿ-1)/i</li>
+          <li><strong>Inflation</strong>: Real = Nominal / (1+π)ᵀ</li>
+          <li><strong>Säule 3a 2026</strong>: max. CHF 7'258 mit PK, abzugsfähig vom steuerbaren Einkommen</li>
+          <li><strong>Kapitalbezugssteuer</strong>: privilegiert, ~5–12% je nach Kanton und Betrag</li>
+          <li><strong>Renditeannahmen</strong>: historische Werte. Vergangene Renditen ≠ Garantie für Zukunft.</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- TAB 5: BUDGET                                  -->
+  <!-- ============================================== -->
+  <section class="panel" id="panel-budget" role="tabpanel">
+    <div class="panel-header">
+      <h2>📊 Haushaltsbudget – 50/30/20 Schweiz-Edition</h2>
+      <p>Detaillierter Budgetrechner mit CH-typischen Kategorien, Sparquote, Cashflow und 50/30/20-Check.</p>
+    </div>
+
+    <div class="grid grid-2">
+      <div>
+        <div class="section-h">Einnahmen</div>
+        <div class="row-2">
+          <div class="field">
+            <label>Nettolohn 1 (CHF)</label>
+            <input type="number" id="b-lohn1" value="6200" step="50">
+          </div>
+          <div class="field">
+            <label>Nettolohn 2 / Nebenerwerb (CHF)</label>
+            <input type="number" id="b-lohn2" value="0" step="50">
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Kinderzulagen (CHF)</label>
+            <input type="number" id="b-zulagen" value="0" step="50">
+          </div>
+          <div class="field">
+            <label>Sonstige Einkünfte (CHF)</label>
+            <input type="number" id="b-sonstige" value="0" step="50">
+          </div>
+        </div>
+
+        <div class="section-h" style="margin-top:18px">🏠 Wohnen (Fixkosten)</div>
+        <div class="row-2">
+          <div class="field"><label>Miete / Hypothek</label><input type="number" id="b-wohn" value="2100" step="50"></div>
+          <div class="field"><label>Nebenkosten</label><input type="number" id="b-nk" value="250" step="10"></div>
+        </div>
+        <div class="row-2">
+          <div class="field"><label>Strom / Internet / Serafe</label><input type="number" id="b-strom" value="150" step="10"></div>
+          <div class="field"><label>Hausratversicherung</label><input type="number" id="b-hausrat" value="35" step="5"></div>
+        </div>
+
+        <div class="section-h">🛡️ Versicherungen & Vorsorge</div>
+        <div class="row-2">
+          <div class="field"><label>Krankenkasse (Erwachsene)</label><input type="number" id="b-kk" value="450" step="10"></div>
+          <div class="field"><label>Krankenkasse (Kinder)</label><input type="number" id="b-kk-k" value="0" step="10"></div>
+        </div>
+        <div class="row-2">
+          <div class="field"><label>Säule 3a / Monat</label><input type="number" id="b-3a" value="200" step="50"></div>
+          <div class="field"><label>Andere Versicherungen</label><input type="number" id="b-vers" value="50" step="10"></div>
+        </div>
+
+        <div class="section-h">🛒 Lebenshaltung</div>
+        <div class="row-2">
+          <div class="field"><label>Lebensmittel/Haushalt</label><input type="number" id="b-food" value="700" step="20"></div>
+          <div class="field"><label>Drogerie/Apotheke</label><input type="number" id="b-drog" value="60" step="10"></div>
+        </div>
+
+        <div class="section-h">🚗 Mobilität</div>
+        <div class="row-2">
+          <div class="field"><label>ÖV (Halbtax/GA/Abo)</label><input type="number" id="b-oev" value="80" step="10"></div>
+          <div class="field"><label>Auto (Leasing/Benzin/Service)</label><input type="number" id="b-auto" value="0" step="50"></div>
+        </div>
+
+        <div class="section-h">📱 Kommunikation & Abos</div>
+        <div class="row-2">
+          <div class="field"><label>Mobile/Internet</label><input type="number" id="b-mobile" value="80" step="5"></div>
+          <div class="field"><label>Streaming/Abos</label><input type="number" id="b-abo" value="40" step="5"></div>
+        </div>
+
+        <div class="section-h">🎉 Lifestyle</div>
+        <div class="row-2">
+          <div class="field"><label>Freizeit/Restaurants</label><input type="number" id="b-frei" value="300" step="20"></div>
+          <div class="field"><label>Ferien (monatlich rücklegen)</label><input type="number" id="b-ferien" value="250" step="50"></div>
+        </div>
+
+        <div class="section-h">🏛️ Steuern</div>
+        <div class="row-2">
+          <div class="field"><label>Steuern (Kanton/Gemeinde, monatl. Rücklage)</label><input type="number" id="b-steuer" value="700" step="50"></div>
+          <div class="field"><label>Sonstige Ausgaben</label><input type="number" id="b-misc" value="100" step="20"></div>
+        </div>
+
+        <button class="btn" onclick="berechneBudget()">Budget analysieren</button>
+      </div>
+
+      <div>
+        <div class="section-h">Übersicht</div>
+        <div class="grid grid-2">
+          <div class="kpi-card highlight">
+            <div class="kpi-label">Total Einnahmen</div>
+            <div class="kpi-value" id="b-einnahmen">–</div>
+            <div class="kpi-sub">Pro Monat</div>
+          </div>
+          <div class="kpi-card warn">
+            <div class="kpi-label">Total Ausgaben</div>
+            <div class="kpi-value" id="b-ausgaben">–</div>
+            <div class="kpi-sub" id="b-aus-sub">–</div>
+          </div>
+          <div class="kpi-card success">
+            <div class="kpi-label">Saldo / Sparpotenzial</div>
+            <div class="kpi-value" id="b-saldo">–</div>
+            <div class="kpi-sub" id="b-saldo-sub">–</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Sparquote</div>
+            <div class="kpi-value" id="b-sparquote">–</div>
+            <div class="kpi-sub">Ziel: 10–20%</div>
+          </div>
+        </div>
+
+        <div class="section-h" style="margin-top:18px">50/30/20-Check</div>
+        <div class="breakdown">
+          <div class="breakdown-row"><span class="lbl">50% Fixkosten (Wohnen, KK, Vers., Steuern)</span><span class="val" id="b-50">–</span></div>
+          <div class="breakdown-row"><span class="lbl">30% Lifestyle (Food, Mobi, Freizeit, Abos)</span><span class="val" id="b-30">–</span></div>
+          <div class="breakdown-row"><span class="lbl">20% Sparen / 3a / Schulden tilgen</span><span class="val" id="b-20">–</span></div>
+        </div>
+        <div class="note info" style="margin-top:14px" id="b-empfehlung">Berechne dein Budget, um Empfehlungen zu erhalten.</div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:24px">
+      <div class="chart-card">
+        <h3>Ausgaben nach Kategorie</h3>
+        <div class="chart-wrap tall"><canvas id="chart-budget-donut"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>50/30/20 – Soll vs. Ist</h3>
+        <div class="chart-wrap tall"><canvas id="chart-budget-503020"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="margin-top:20px">
+      <h3>12-Monats-Cashflow-Prognose (bei aktuellem Budget)</h3>
+      <div class="chart-wrap tall"><canvas id="chart-budget-cashflow"></canvas></div>
+    </div>
+
+    <div class="scenario-block">
+      <h3>🎯 Was-wäre-wenn Szenarien</h3>
+      <div class="grid grid-3" id="budget-szenarien"></div>
+    </div>
+
+    <details class="explain">
+      <summary>📚 Methodik & Tipps</summary>
+      <div class="explain-body">
+        <ul>
+          <li><strong>50/30/20-Regel</strong> (Senator Elizabeth Warren-Heuristik, adaptiert CH): 50% Notwendiges, 30% Lifestyle, 20% Sparen/Schulden</li>
+          <li><strong>SKS-Richtwerte</strong>: Wohnen max. 30%, Sparen min. 10–15% des Nettolohns</li>
+          <li><strong>KK-Prämie 2026</strong>: Ø Erwachsene CHF 465/Mt, junge Erw. CHF 326/Mt, Kinder CHF 122/Mt (BAG)</li>
+          <li><strong>Steuern-Rücklage</strong>: ca. 10–15% des Nettolohns je nach Kanton</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <footer class="site-footer">
+    <strong>FinanzKlar Schweiz</strong> · © 2026 · Alle Angaben ohne Gewähr · Kein Steuer- oder Finanzberatungsersatz<br>
+    <span class="src">Quellen: BSV (AHV/IV/BVG), SECO (ALV), BWO (Mietrecht), ESTV (Steuern), BAG (KK-Prämien), EJPD (VKKG), FINMA/SBVg (Hypotheken-Mindeststandards)</span>
+  </footer>
 </div>
-
-<!-- ══════════ KREDIT ══════════ -->
-<div class="tool" id="kredit">
-  <div class="card">
-    <div class="card-header">
-      <h2>🏦 Kreditrechner</h2>
-      <p>Konsumkredite & Hypotheken – Schweizer Zinsniveau 2024</p>
-    </div>
-    <div class="grid">
-      <div class="slider-field" style="grid-column:1/-1">
-        <label>Kreditsumme <span id="k-sum-lbl">CHF 20'000</span></label>
-        <input type="range" id="k-sum" min="1000" max="1000000" step="1000" value="20000" oninput="kSlider()">
-      </div>
-      <div class="slider-field">
-        <label>Laufzeit <span id="k-lz-lbl">5 Jahre</span></label>
-        <input type="range" id="k-lz" min="1" max="30" step="1" value="5" oninput="document.getElementById('k-lz-lbl').textContent=this.value+' Jahre'">
-      </div>
-      <div class="slider-field">
-        <label>Zinssatz p.a. <span id="k-zins-lbl">5.9%</span></label>
-        <input type="range" id="k-zins" min="0.5" max="12" step="0.1" value="5.9" oninput="document.getElementById('k-zins-lbl').textContent=parseFloat(this.value).toFixed(1)+'%'">
-      </div>
-      <div class="field" style="grid-column:1/-1">
-        <label>Kreditart (Vorlage)</label>
-        <select id="k-art" onchange="kArtChange()">
-          <option value="5.9">Konsumkredit (max. 5.9% gesetzl.)</option>
-          <option value="4.5">Autokredit (~4.5%)</option>
-          <option value="2.5">Festhypothek 5J (~2.5%)</option>
-          <option value="2.2">Festhypothek 3J (~2.2%)</option>
-          <option value="1.8">SARON-Hypothek (~1.8%)</option>
-        </select>
-      </div>
-    </div>
-    <button class="btn" onclick="calcKredit()">Berechnen</button>
-    <div class="result show" id="k-result">
-      <div class="chips">
-        <div class="chip"><div class="val green" id="k-rate">–</div><div class="lbl">Monatliche Rate</div></div>
-        <div class="chip"><div class="val" id="k-gesamt">–</div><div class="lbl">Gesamtrückzahlung</div></div>
-        <div class="chip"><div class="val red" id="k-zinsk">–</div><div class="lbl">Zinskosten</div></div>
-        <div class="chip"><div class="val red" id="k-mehrk">–</div><div class="lbl">Mehrkosten %</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════ MIETE ══════════ -->
-<div class="tool" id="miete">
-  <div class="card">
-    <div class="card-header">
-      <h2>🏠 Mietbelastungsrechner</h2>
-      <p>Schweizer Faustregel: max. 1/3 des Bruttoeinkommens für Wohnkosten</p>
-    </div>
-    <div class="grid">
-      <div class="field">
-        <label>Monatliche Miete (inkl. NK)</label>
-        <input type="number" id="m-miete" value="2200" min="0">
-      </div>
-      <div class="field">
-        <label>Monatliches Bruttoeinkommen</label>
-        <input type="number" id="m-brutto" value="7000" min="1">
-      </div>
-    </div>
-    <button class="btn" onclick="calcMiete()">Analysieren</button>
-    <div class="result" id="m-result">
-      <div class="chips">
-        <div class="chip"><div class="val" id="m-quote">–</div><div class="lbl">Mietbelastung</div></div>
-        <div class="chip"><div class="val green" id="m-rest">–</div><div class="lbl">Verbleibend</div></div>
-        <div class="chip"><div class="val" id="m-jahres">–</div><div class="lbl">Jahresmiete</div></div>
-      </div>
-      <div id="m-bewertung" class="bewertung"></div>
-      <div class="bar-wrap">
-        <div class="bar-labels"><span>Miete</span><span>Übriges Einkommen</span></div>
-        <div class="bar-track"><div class="bar-fill" id="m-bar"></div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════ SPAREN ══════════ -->
-<div class="tool" id="sparen">
-  <div class="card">
-    <div class="card-header">
-      <h2>📈 Sparrechner & Zinseszins</h2>
-      <p>Mit Inflation & Schweizer Rendite-Vorlagen</p>
-    </div>
-    <div class="info-box">Säule 3a max. CHF 7'056/Jahr (2024). Sparkonto ~1%, ETF-Portfolio historisch ~5–7% p.a.</div>
-    <div class="grid">
-      <div class="field"><label>Startkapital (CHF)</label><input type="number" id="s-start" value="10000" min="0"></div>
-      <div class="field"><label>Monatliche Sparrate (CHF)</label><input type="number" id="s-rate" value="500" min="0"></div>
-      <div class="field">
-        <label>Rendite-Vorlage</label>
-        <select id="s-zins-sel" onchange="document.getElementById('s-zins').value=this.value">
-          <option value="1.0">Sparkonto (~1.0%)</option>
-          <option value="1.5">Säule 3a (~1.5%)</option>
-          <option value="5.0" selected>ETF-Portfolio (~5.0%)</option>
-          <option value="7.0">Aktien historisch (~7.0%)</option>
-        </select>
-      </div>
-      <div class="field"><label>Rendite p.a. (%)</label><input type="number" id="s-zins" value="5.0" min="0" step="0.1"></div>
-      <div class="field"><label>Anlagedauer (Jahre)</label><input type="number" id="s-jahre" value="25" min="1" max="50"></div>
-      <div class="field"><label>Inflation p.a. (%)</label><input type="number" id="s-inflation" value="1.5" min="0" step="0.1"></div>
-    </div>
-    <button class="btn" onclick="calcSparen()">Berechnen</button>
-    <div class="result" id="s-result">
-      <div class="chips">
-        <div class="chip"><div class="val green" id="s-end">–</div><div class="lbl">Endkapital nominal</div></div>
-        <div class="chip"><div class="val" id="s-real">–</div><div class="lbl">Endkapital real</div></div>
-        <div class="chip"><div class="val" id="s-eingezahlt">–</div><div class="lbl">Eingezahlt</div></div>
-        <div class="chip"><div class="val green" id="s-gewinn">–</div><div class="lbl">Zinsgewinn</div></div>
-      </div>
-      <div class="bar-wrap" style="margin-top:8px">
-        <div class="bar-labels"><span>Einzahlungen</span><span>Rendite</span></div>
-        <div class="bar-track"><div class="bar-fill" id="s-bar" style="background:var(--green)"></div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════ BUDGET ══════════ -->
-<div class="tool" id="budget">
-  <div class="card">
-    <div class="card-header">
-      <h2>📊 Haushaltsbudget-Analyse</h2>
-      <p>Schweizer Lebenshaltungskosten · Richtwerte SKS</p>
-    </div>
-    <div class="info-box">Empfehlung: Wohnen max. 30%, Sparen mind. 10–15% des Nettolohns.</div>
-    <div class="grid">
-      <div class="field"><label>Nettolohn / Monat</label><input type="number" id="b-ein" value="5000" min="1"></div>
-      <div class="field"><label>🏠 Wohnen (Miete + NK)</label><input type="number" id="b-miete" value="1600" min="0"></div>
-      <div class="field"><label>🛒 Lebensmittel & Haushalt</label><input type="number" id="b-food" value="600" min="0"></div>
-      <div class="field"><label>🚗 Mobilität (ÖV / Auto)</label><input type="number" id="b-trans" value="300" min="0"></div>
-      <div class="field"><label>🛡️ Versicherungen (KK etc.)</label><input type="number" id="b-vers" value="450" min="0"></div>
-      <div class="field"><label>📱 Kommunikation & Abos</label><input type="number" id="b-komm" value="100" min="0"></div>
-      <div class="field"><label>🎉 Freizeit & Ferien</label><input type="number" id="b-frei" value="400" min="0"></div>
-      <div class="field"><label>🏦 Steuern (Kanton/Gemeinde)</label><input type="number" id="b-steuer" value="400" min="0"></div>
-    </div>
-    <button class="btn" onclick="calcBudget()">Analysieren</button>
-    <div class="result" id="b-result">
-      <div class="chips">
-        <div class="chip"><div class="val red" id="b-ausgaben">–</div><div class="lbl">Gesamtausgaben</div></div>
-        <div class="chip"><div class="val green" id="b-uebrig">–</div><div class="lbl">Übrig / Sparpotenzial</div></div>
-        <div class="chip"><div class="val" id="b-sparq">–</div><div class="lbl">Sparquote</div></div>
-      </div>
-      <div id="b-bars" style="margin-top:8px"></div>
-    </div>
-  </div>
-</div>
-
-</main>
-
-<footer>
-  <strong>FinanzKlar Schweiz</strong> © 2025 &nbsp;·&nbsp; Alle Angaben ohne Gewähr &nbsp;·&nbsp; Kein Steuer- oder Finanzberatungsersatz<br>
-  <span style="margin-top:4px;display:block">Quellen: ESTV, AHV/IV, BSV, Kantonale Steuerrechner</span>
-</footer>
 
 <script>
-const chf  = v => 'CHF\u00a0' + new Intl.NumberFormat('de-CH',{minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
-const chf0 = v => 'CHF\u00a0' + new Intl.NumberFormat('de-CH',{maximumFractionDigits:0}).format(v);
-const pct  = v => (v*100).toFixed(1)+'\u00a0%';
+// ========================================================================
+// FORMAT & UTILS
+// ========================================================================
+const CHF = n => isFinite(n) ? new Intl.NumberFormat('de-CH', { style: 'currency', currency: 'CHF', maximumFractionDigits: 0 }).format(n) : '–';
+const CHFc = n => isFinite(n) ? new Intl.NumberFormat('de-CH', { style: 'currency', currency: 'CHF', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n) : '–';
+const PCT = n => isFinite(n) ? (n * 100).toFixed(1) + '%' : '–';
+const PCTp = n => isFinite(n) ? n.toFixed(1) + '%' : '–';
 
-function show(id,btn){
-  document.querySelectorAll('.tool').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.nav-pills button').forEach(b=>b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
+const $ = id => document.getElementById(id);
+const val = id => parseFloat($(id).value) || 0;
+
+// Chart-Defaults
+Chart.defaults.font.family = '-apple-system, "Inter", "Helvetica Neue", Arial, sans-serif';
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#5b6680';
+Chart.defaults.borderColor = '#e3e8ef';
+
+const COLORS = {
+  primary: '#d52b1e', accent: '#0a4d8c', accent2: '#1f8a4c', warn: '#e0a800',
+  danger: '#c0392b', muted: '#5b6680',
+  palette: ['#0a4d8c','#d52b1e','#1f8a4c','#e0a800','#7a4eb5','#0d8c8c','#c0392b','#5b6680','#f17f29','#26619c'],
+};
+
+// Chart registry to enable destroy/replace
+const CHARTS = {};
+function chart(id, config) {
+  if (CHARTS[id]) CHARTS[id].destroy();
+  CHARTS[id] = new Chart($(id).getContext('2d'), config);
+  return CHARTS[id];
 }
 
-const GEMEINDEN={zh:[{n:'Zürich',f:1.19},{n:'Winterthur',f:1.22},{n:'Uster',f:1.10},{n:'Dübendorf',f:1.07},{n:'Dietikon',f:1.17},{n:'Bülach',f:1.13},{n:'Horgen',f:0.97},{n:'Küsnacht',f:0.75},{n:'Thalwil',f:0.89},{n:'Adliswil',f:1.05},{n:'Kilchberg',f:0.72},{n:'Zollikon',f:0.78},{n:'Opfikon',f:1.05}],zg:[{n:'Zug',f:0.82},{n:'Baar',f:0.80},{n:'Cham',f:0.80},{n:'Rotkreuz',f:0.72},{n:'Steinhausen',f:0.80}],be:[{n:'Bern',f:1.54},{n:'Biel',f:1.69},{n:'Thun',f:1.55},{n:'Köniz',f:1.55},{n:'Burgdorf',f:1.54}],lu:[{n:'Luzern',f:1.60},{n:'Kriens',f:1.70},{n:'Emmen',f:1.75},{n:'Horw',f:1.45},{n:'Sursee',f:1.60}],ag:[{n:'Aarau',f:1.06},{n:'Baden',f:1.00},{n:'Wettingen',f:1.08},{n:'Brugg',f:1.05},{n:'Rheinfelden',f:1.10}],bs:[{n:'Basel',f:1.0},{n:'Riehen',f:1.0},{n:'Bettingen',f:1.0}],sg:[{n:'St. Gallen',f:1.55},{n:'Gossau',f:1.56},{n:'Rapperswil-Jona',f:1.48},{n:'Wil',f:1.54}],so:[{n:'Solothurn',f:1.09},{n:'Olten',f:1.26},{n:'Grenchen',f:1.26},{n:'Bettlach',f:1.10}],tg:[{n:'Frauenfeld',f:1.31},{n:'Kreuzlingen',f:1.35},{n:'Arbon',f:1.39},{n:'Amriswil',f:1.34}],ge:[{n:'Genf',f:0.455},{n:'Carouge',f:0.455},{n:'Lancy',f:0.455},{n:'Vernier',f:0.455}],vd:[{n:'Lausanne',f:0.795},{n:'Bussigny',f:0.73},{n:'Nyon',f:0.67},{n:'Morges',f:0.67}],vs:[{n:'Sion',f:1.30},{n:'Sierre',f:1.25},{n:'Visp',f:1.10},{n:'Brig',f:1.20}]};
-const KANTONE={zh:{name:'Zürich',kSt:0.100,kircheRate:0.10},zg:{name:'Zug',kSt:0.060,kircheRate:0.08},be:{name:'Bern',kSt:0.105,kircheRate:0.18},lu:{name:'Luzern',kSt:0.090,kircheRate:0.08},ag:{name:'Aargau',kSt:0.100,kircheRate:0.07},bs:{name:'Basel-Stadt',kSt:0.107,kircheRate:0.10},sg:{name:'St. Gallen',kSt:0.100,kircheRate:0.07},so:{name:'Solothurn',kSt:0.100,kircheRate:0.09},tg:{name:'Thurgau',kSt:0.105,kircheRate:0.07},ge:{name:'Genf',kSt:0.130,kircheRate:0.08},vd:{name:'Waadt',kSt:0.155,kircheRate:0.07},vs:{name:'Wallis',kSt:0.135,kircheRate:0.07}};
+// ========================================================================
+// TAB NAVIGATION
+// ========================================================================
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  $('panel-' + t.dataset.tab).classList.add('active');
+  setTimeout(() => Object.values(CHARTS).forEach(c => c.resize()), 50);
+}));
 
-function fillGemeinden(){
-  const k=document.getElementById('n-kanton').value;
-  document.getElementById('n-gemeinde').innerHTML=(GEMEINDEN[k]||[]).map(g=>`<option value="${g.f}">${g.n}</option>`).join('');
+// Toggle-Groups
+function initToggle(groupId, onChange) {
+  const grp = $(groupId);
+  grp.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    grp.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    onChange(b.dataset.mode);
+  }));
 }
-fillGemeinden();
+initToggle('hypo-mode', m => {
+  $('kredit-konsum').style.display = (m === 'konsum') ? '' : 'none';
+  $('kredit-hypo').style.display = (m === 'hypo') ? '' : 'none';
+  if (m === 'hypo') berechneHypothek(); else berechneKredit();
+});
+initToggle('sparen-mode', m => {
+  $('sparen-zinses').style.display = (m === 'zinses') ? '' : 'none';
+  $('sparen-3a').style.display = (m === '3a') ? '' : 'none';
+  $('sparen-ziel').style.display = (m === 'ziel') ? '' : 'none';
+  if (m === 'zinses') berechneSparen();
+  if (m === '3a') berechne3a();
+  if (m === 'ziel') berechneZiel();
+});
 
-// Steuerbares Einkommen nach realistischen CH-Abzügen
-function steuerbaresEinkommen(jBrutto, pkJahr) {
-  // Abzüge nach Zürcher/CH-Praxis (ESTV + Kanton ZH)
-  const berufskosten   = Math.min(jBrutto * 0.03, 4000);  // Berufsauslagen 3%, max 4'000
-  const versicherung   = 2600;   // Pauschale Versicherungs-/Krankenkassenabzug (ledig)
-  const ahvAlvJahr     = jBrutto * (0.053 + 0.011); // AHV+ALV AN-Anteil
-  const nbuJahr        = jBrutto * 0.0047;
-  const dritteSaeule   = 0;      // 3a nicht bekannt → konservativ 0
-  // pk kommt aus Eingabe (Jahresbetrag)
-  const totalAbzug = berufskosten + versicherung + ahvAlvJahr + nbuJahr + pkJahr;
-  return Math.max(0, jBrutto - totalAbzug);
-}
+// ========================================================================
+// KANTONS-DATEN (Steuerfaktoren 2026, vereinfacht)
+// Werte = grob geschätzte effektive Belastung CHF 100k stb. Einkommen, ledig
+// Quelle: ESTV/Convit/Kantonsvergleich – nur Richtwert!
+// ========================================================================
+const KANTONE = {
+  ZH: { name: 'Zürich',        kf: 11.5, gf: 10.5, ki: 1.0, grenz: 0.29 },
+  ZG: { name: 'Zug',           kf:  6.5, gf:  5.5, ki: 1.0, grenz: 0.18 },
+  SZ: { name: 'Schwyz',        kf:  8.0, gf:  7.0, ki: 0.8, grenz: 0.22 },
+  NW: { name: 'Nidwalden',     kf:  8.5, gf:  6.0, ki: 0.6, grenz: 0.23 },
+  OW: { name: 'Obwalden',      kf:  9.0, gf:  6.5, ki: 0.6, grenz: 0.24 },
+  AR: { name: 'Appenzell A.Rh.',kf: 10.5, gf:  8.5, ki: 0.6, grenz: 0.26 },
+  AI: { name: 'Appenzell I.Rh.',kf:  9.5, gf:  7.5, ki: 0.5, grenz: 0.25 },
+  GL: { name: 'Glarus',        kf: 10.0, gf:  8.5, ki: 0.8, grenz: 0.27 },
+  UR: { name: 'Uri',           kf:  9.5, gf:  7.5, ki: 0.7, grenz: 0.24 },
+  TG: { name: 'Thurgau',       kf: 11.0, gf:  9.5, ki: 0.8, grenz: 0.28 },
+  SG: { name: 'St. Gallen',    kf: 11.5, gf: 10.0, ki: 1.0, grenz: 0.29 },
+  AG: { name: 'Aargau',        kf: 11.5, gf: 11.0, ki: 1.0, grenz: 0.28 },
+  LU: { name: 'Luzern',        kf: 13.0, gf: 10.0, ki: 1.0, grenz: 0.32 },
+  BE: { name: 'Bern',          kf: 13.5, gf: 11.5, ki: 1.2, grenz: 0.33 },
+  SO: { name: 'Solothurn',     kf: 13.0, gf: 11.0, ki: 1.0, grenz: 0.31 },
+  BL: { name: 'Basel-Land',    kf: 12.5, gf: 10.5, ki: 1.0, grenz: 0.30 },
+  BS: { name: 'Basel-Stadt',   kf: 14.5, gf:  0.0, ki: 1.2, grenz: 0.34 },
+  SH: { name: 'Schaffhausen',  kf: 11.0, gf: 10.0, ki: 1.0, grenz: 0.28 },
+  FR: { name: 'Freiburg',      kf: 12.5, gf: 10.5, ki: 1.1, grenz: 0.30 },
+  GR: { name: 'Graubünden',    kf: 12.0, gf: 10.0, ki: 1.0, grenz: 0.29 },
+  TI: { name: 'Tessin',        kf: 14.0, gf: 11.0, ki: 1.0, grenz: 0.32 },
+  VD: { name: 'Waadt',         kf: 14.5, gf: 12.0, ki: 1.0, grenz: 0.35 },
+  VS: { name: 'Wallis',        kf: 13.0, gf: 10.5, ki: 1.0, grenz: 0.30 },
+  NE: { name: 'Neuenburg',     kf: 15.0, gf: 12.5, ki: 1.0, grenz: 0.36 },
+  GE: { name: 'Genf',          kf: 16.0, gf: 12.5, ki: 1.0, grenz: 0.38 },
+  JU: { name: 'Jura',          kf: 14.0, gf: 11.5, ki: 1.1, grenz: 0.32 },
+};
 
-function bundessteuer(stEin, v){
-  // Tarife ESTV 2024, Eingabe = steuerbares Einkommen
-  let s=0;
-  if(!v){
-    if(stEin<=17800)s=0;
-    else if(stEin<=31600)s=(stEin-17800)*.0077;
-    else if(stEin<=41400)s=106+(stEin-31600)*.0088;
-    else if(stEin<=55200)s=192+(stEin-41400)*.0264;
-    else if(stEin<=72500)s=556+(stEin-55200)*.0297;
-    else if(stEin<=78100)s=1070+(stEin-72500)*.0561;
-    else if(stEin<=103600)s=1384+(stEin-78100)*.0825;
-    else if(stEin<=134600)s=3488+(stEin-103600)*.099;
-    else if(stEin<=176000)s=6577+(stEin-134600)*.1056;
-    else s=10949+(stEin-176000)*.115;
-  } else {
-    if(stEin<=28300)s=0;
-    else if(stEin<=50900)s=(stEin-28300)*.01;
-    else if(stEin<=58400)s=226+(stEin-50900)*.02;
-    else if(stEin<=75300)s=376+(stEin-58400)*.03;
-    else if(stEin<=90300)s=883+(stEin-75300)*.04;
-    else if(stEin<=103400)s=1483+(stEin-90300)*.05;
-    else if(stEin<=114700)s=2138+(stEin-103400)*.06;
-    else if(stEin<=124000)s=2816+(stEin-114700)*.07;
-    else if(stEin<=131700)s=3467+(stEin-124000)*.08;
-    else if(stEin<=141200)s=4083+(stEin-131700)*.09;
-    else if(stEin<=154500)s=4938+(stEin-141200)*.10;
-    else if(stEin<=176000)s=6268+(stEin-154500)*.11;
-    else s=8633+(stEin-176000)*.115;
+// Kantone in Select befüllen
+(function() {
+  const sel = $('lohn-kanton');
+  Object.entries(KANTONE).forEach(([k, v]) => {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = v.name;
+    sel.appendChild(o);
+  });
+  sel.value = 'ZH';
+})();
+
+// ========================================================================
+// SOZIALVERSICHERUNG 2026
+// ========================================================================
+const SV = {
+  ahv: 0.0530,
+  alv: 0.0110,
+  alvSol: 0.0050,
+  alvDecke: 148200,
+  bvgKoord: 26460,
+  bvgSchwelle: 22680,
+};
+
+function calcLohn() {
+  const brutto = val('lohn-brutto');
+  const has13 = val('lohn-13') === 1;
+  const monBrutto = has13 ? brutto * 13 / 12 : brutto;
+  const jBrutto = monBrutto * 12;
+
+  // AHV / IV / EO
+  const ahv = monBrutto * SV.ahv;
+
+  // ALV: 1.1% bis 148'200, 0.5% Solidarität darüber
+  const jALV = Math.min(jBrutto, SV.alvDecke) * SV.alv;
+  const jALVsol = Math.max(0, jBrutto - SV.alvDecke) * SV.alvSol;
+  const alv = jALV / 12;
+  const alvSol = jALVsol / 12;
+
+  // BVG
+  const altersGS = val('lohn-alter');
+  let bvg = 0;
+  if (jBrutto > SV.bvgSchwelle) {
+    const koordLohn = Math.max(jBrutto - SV.bvgKoord, jBrutto * 1/8); // mind. 1/8 des AHV-Lohns
+    bvg = (koordLohn * altersGS / 2) / 12; // AN-Anteil = die Hälfte
   }
-  return Math.max(0,s);
-}
 
-// Kantonssteuer Zürich: Einfache Steuer auf steuerbares Einkommen
-// Tarif gemäss § 35 StG ZH 2024 (Einheitstarif, Gemeinde multipliziert)
-function kantonssteuerEinfach(stEin, verheiratet) {
-  // Tarif ledig (Tarif A ZH)
-  let s = 0;
-  if(!verheiratet) {
-    if(stEin<=6700)       s=0;
-    else if(stEin<=11300) s=(stEin-6700)*0.02;
-    else if(stEin<=16100) s=92+(stEin-11300)*0.03;
-    else if(stEin<=24100) s=236+(stEin-16100)*0.04;
-    else if(stEin<=33100) s=556+(stEin-24100)*0.05;
-    else if(stEin<=43300) s=1006+(stEin-33100)*0.06;
-    else if(stEin<=56900) s=1618+(stEin-43300)*0.07;
-    else if(stEin<=72500) s=2570+(stEin-56900)*0.08;
-    else if(stEin<=90200) s=3818+(stEin-72500)*0.09;
-    else if(stEin<=114100)s=5411+(stEin-90200)*0.10;
-    else if(stEin<=147100)s=7801+(stEin-114100)*0.11;
-    else if(stEin<=191100)s=11431+(stEin-147100)*0.12;
-    else if(stEin<=254000)s=16711+(stEin-191100)*0.13;
-    else                   s=24888+(stEin-254000)*0.13;
-  } else {
-    // Tarif verheiratet (Tarif B ZH)
-    if(stEin<=13500)      s=0;
-    else if(stEin<=19100) s=(stEin-13500)*0.02;
-    else if(stEin<=27200) s=112+(stEin-19100)*0.03;
-    else if(stEin<=35200) s=355+(stEin-27200)*0.04;
-    else if(stEin<=47200) s=675+(stEin-35200)*0.05;
-    else if(stEin<=59200) s=1275+(stEin-47200)*0.06;
-    else if(stEin<=79400) s=1995+(stEin-59200)*0.07;
-    else if(stEin<=103500)s=3409+(stEin-79400)*0.08;
-    else if(stEin<=131800)s=5337+(stEin-103500)*0.09;
-    else if(stEin<=166600)s=7884+(stEin-131800)*0.10;
-    else if(stEin<=211600)s=11364+(stEin-166600)*0.11;
-    else if(stEin<=271600)s=16314+(stEin-211600)*0.12;
-    else                   s=23514+(stEin-271600)*0.13;
-  }
-  return Math.max(0, s);
-}
+  // NBU
+  const nbu = monBrutto * (val('lohn-nbu') / 100);
 
-function calcNetto(){
-  const b        = +document.getElementById('n-brutto').value;
-  const monate   = hat13 ? 13 : 12;
-  const jBrutto  = b * monate;
-  const kCode    = document.getElementById('n-kanton').value;
-  const gFaktor  = +document.getElementById('n-gemeinde').value;
-  const gName    = document.getElementById('n-gemeinde').options[document.getElementById('n-gemeinde').selectedIndex]?.text||'';
-  const zvStand  = document.getElementById('n-zivilstand').value;
-  const kinder   = +document.getElementById('n-kinder').value;
-  const kirche   = +document.getElementById('n-kirche').value;
-  const pkPct    = +document.getElementById('n-alter').value/100;
-  const ausweis  = document.getElementById('n-ausweis').value;
-  const kDaten   = KANTONE[kCode];
-  const verheiratet = zvStand !== 'single';
-
-  // Sozialabzüge (monatlich)
-  const ahv  = b * 0.0530;
-  const alv  = b * 0.0110;
-  const pk   = b * pkPct;
-  const nbu  = b * 0.0047;
-  const sozialM = ahv + alv + pk + nbu;
-
-  // Quellensteuer nur B-Ausweis
+  // Quellensteuer
+  const isB = $('lohn-ausweis').value === 'b';
   let qst = 0;
-  if(ausweis === 'b'){
-    const stEin = steuerbaresEinkommen(jBrutto, pk*monate);
-    const bSt   = bundessteuer(stEin, verheiratet);
-    const eSt   = kantonssteuerEinfach(stEin, verheiratet);
-    const kSt   = eSt * kDaten.kSt;
-    const gSt   = eSt * gFaktor;
-    qst = (bSt + kSt + gSt) / monate;
+  if (isB) {
+    // Stark vereinfachter QST-Tarif (CHF, ledig, ohne Kinder, Tarif A)
+    // Realität: kantonale Tarife
+    const annual = jBrutto;
+    let r = 0;
+    if (annual < 30000) r = 0.04;
+    else if (annual < 60000) r = 0.07;
+    else if (annual < 90000) r = 0.11;
+    else if (annual < 120000) r = 0.15;
+    else if (annual < 200000) r = 0.20;
+    else r = 0.23;
+    qst = monBrutto * r;
   }
 
-  const netto = b - sozialM - qst;
+  const netto = monBrutto - ahv - alv - alvSol - bvg - nbu - qst;
+  return { monBrutto, jBrutto, ahv, alv, alvSol, bvg, nbu, qst, netto, altersGS };
+}
 
-  // Lohnausweis
-  document.getElementById('r-brutto').textContent = chf(b) + (hat13 ? ' × 13' : ' × 12');
-  document.getElementById('r-ahv').textContent    = '– ' + chf(ahv);
-  document.getElementById('r-alv').textContent    = '– ' + chf(alv);
-  document.getElementById('r-pk').textContent     = '– ' + chf(pk);
-  document.getElementById('r-nbu').textContent    = '– ' + chf(nbu);
-  document.getElementById('r-netto').textContent  = chf(netto);
+function berechneSteuern(jNetto, jBrutto) {
+  const kanton = KANTONE[$('lohn-kanton').value];
+  const zivil = $('lohn-zivilstand').value;
+  const kinder = val('lohn-kinder');
+  const kircheJa = val('lohn-kirche') === 1;
+  const einzahl3a = val('lohn-3a');
 
-  const qRow = document.getElementById('r-qst-row');
-  if(ausweis === 'b'){ qRow.style.display=''; document.getElementById('r-qst').textContent='– '+chf(qst); }
-  else { qRow.style.display='none'; }
+  // Steuerbares Einkommen (sehr grob): Bruttolohn − SV − 3a − pauschale Abzüge
+  const svJahr = (jBrutto - jNetto);
+  const pauschal = 4000 + (zivil !== 'ledig' ? 2700 : 0) + kinder * 6700;
+  let stEink = jBrutto - svJahr - einzahl3a - pauschal;
+  if (zivil === 'verheiratet1') stEink *= 0.95; // Splitting-Effekt vereinfacht
+  if (stEink < 0) stEink = 0;
 
-  // Jahresübersicht
-  document.getElementById('r-jbrutto').textContent = chf0(jBrutto) + (hat13?' (inkl. 13. ML)':'');
-  document.getElementById('r-jsozial').textContent = '– ' + chf0(sozialM * monate);
-  document.getElementById('r-jnetto').textContent  = chf0(netto * monate);
-
-  // Steuerbox
-  const stBox = document.getElementById('r-steuer-box');
-  if(ausweis === 'b'){ stBox.style.display='none'; }
-  else {
-    stBox.style.display = '';
-    const pkJahr  = pk * monate;
-    const stEin   = steuerbaresEinkommen(jBrutto, pkJahr);
-    const stBund  = bundessteuer(stEin, verheiratet);
-    const eSt     = kantonssteuerEinfach(stEin, verheiratet);
-    const stK     = eSt * kDaten.kSt;
-    const stG     = eSt * gFaktor;
-    const stKi    = kirche==1 ? eSt * kDaten.kircheRate : 0;
-    const kinderAbz = kinder * 700;
-    const total   = Math.max(0, stBund + stK + stG + stKi - kinderAbz);
-
-    document.getElementById('r-steuer-sub').textContent =
-      `Kanton ${kDaten.name} · ${gName} (${(gFaktor*100).toFixed(0)}%) · Steuerbares Einkommen: ${chf0(stEin)}`;
-    document.getElementById('r-st-bund').textContent     = chf0(stBund);
-    document.getElementById('r-st-kanton').textContent   = chf0(stK);
-    document.getElementById('r-st-gemeinde').textContent = chf0(stG);
-
-    const kiRow = document.getElementById('r-st-kirche-row');
-    if(kirche==1){ kiRow.style.display=''; document.getElementById('r-st-kirche').textContent=chf0(stKi); }
-    else { kiRow.style.display='none'; }
-
-    const kdRow = document.getElementById('r-st-kinder-row');
-    if(kinder>0){ kdRow.style.display=''; document.getElementById('r-st-kinder').textContent='– '+chf0(kinderAbz); }
-    else { kdRow.style.display='none'; }
-
-    document.getElementById('r-st-total').textContent   = chf0(total);
-    document.getElementById('r-st-monat').textContent   = chf0(total/12) + ' / Monat';
-    document.getElementById('r-st-effnetto').textContent= chf0((netto*monate - total)/12) + ' / Monat';
+  // Direkte Bundessteuer (ESTV 2026 – vereinfachte Progression)
+  let bund = 0;
+  if (zivil === 'ledig') {
+    bund = bundessteuerLedig(stEink);
+  } else {
+    bund = bundessteuerVerheiratet(stEink);
   }
-  document.getElementById('n-result').classList.add('show');
+
+  // Kantonssteuer (sehr grob): Faktor pro 1'000 CHF
+  // approx: einfache Steuer 1.5% bis 9% progressiv, dann × Steuerfuss/100
+  const einfacheSt = stEink * progKantonSatz(stEink);
+  const kantons = einfacheSt * kanton.kf / 100;
+  const gemeinde = einfacheSt * kanton.gf / 100;
+  const kirche = kircheJa ? einfacheSt * 0.15 : 0; // ca. 8–15% von einfacher Steuer
+
+  // Kinderabzug Bundessteuer (CHF 263/Kind direkt) – vereinfacht
+  const kindAbzug = kinder * 251 + kinder * 1200; // Bund + Kantonsschätzung
+
+  const total = Math.max(0, bund + kantons + gemeinde + kirche - kindAbzug);
+  const ersparnis3a = einzahl3a * kanton.grenz;
+
+  return { bund, kantons, gemeinde, kirche, kindAbzug, ersparnis3a, total, stEink };
 }
 
-function kSlider(){document.getElementById('k-sum-lbl').textContent=chf0(+document.getElementById('k-sum').value);}
-function kArtChange(){const v=document.getElementById('k-art').value;document.getElementById('k-zins').value=v;document.getElementById('k-zins-lbl').textContent=parseFloat(v).toFixed(1)+'%';}
-function calcKredit(){
-  const P=+document.getElementById('k-sum').value,n=+document.getElementById('k-lz').value*12,r=+document.getElementById('k-zins').value/100/12;
-  const rate=r===0?P/n:P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1),gesamt=rate*n,zinsk=gesamt-P;
-  document.getElementById('k-rate').textContent=chf(rate);
-  document.getElementById('k-gesamt').textContent=chf0(gesamt);
-  document.getElementById('k-zinsk').textContent=chf0(zinsk);
-  document.getElementById('k-mehrk').textContent=(zinsk/P*100).toFixed(1)+' %';
+function progKantonSatz(eink) {
+  if (eink < 20000) return 0.005;
+  if (eink < 40000) return 0.015;
+  if (eink < 70000) return 0.025;
+  if (eink < 100000) return 0.035;
+  if (eink < 150000) return 0.045;
+  if (eink < 250000) return 0.055;
+  return 0.065;
 }
 
-function calcMiete(){
-  const m=+document.getElementById('m-miete').value,brt=+document.getElementById('m-brutto').value,q=m/brt;
-  document.getElementById('m-quote').textContent=pct(q);
-  document.getElementById('m-rest').textContent=chf0(brt-m);
-  document.getElementById('m-jahres').textContent=chf0(m*12);
-  document.getElementById('m-bar').style.width=Math.min(100,q*100).toFixed(1)+'%';
-  const bw=document.getElementById('m-bewertung');
-  if(q<=0.30){bw.style.cssText='background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;';bw.innerHTML='✅ Sehr gut – unter der Schweizer 1/3-Regel (33%)';document.getElementById('m-bar').style.background='var(--green)';}
-  else if(q<=0.333){bw.style.cssText='background:#fffbeb;color:#d97706;border:1px solid #fde68a;';bw.innerHTML='⚠️ Grenzwertig – knapp an der 1/3-Regel';document.getElementById('m-bar').style.background='#f59e0b';}
-  else{bw.style.cssText='background:#fff0f1;color:#e63946;border:1px solid var(--red-mid);';bw.innerHTML='🚨 Zu hoch – über 33%, prüfe günstigere Wohnoptionen';document.getElementById('m-bar').style.background='var(--red)';}
-  document.getElementById('m-result').classList.add('show');
+// Vereinfachte Bundessteuer-Tarife 2026 (LEDIG)
+function bundessteuerLedig(e) {
+  if (e < 17800) return 0;
+  if (e < 31600) return (e - 17800) * 0.0077;
+  if (e < 41400) return 106.30 + (e - 31600) * 0.0088;
+  if (e < 55200) return 192.30 + (e - 41400) * 0.0264;
+  if (e < 72500) return 556.65 + (e - 55200) * 0.0297;
+  if (e < 78100) return 1070.45 + (e - 72500) * 0.0594;
+  if (e < 103600) return 1403.05 + (e - 78100) * 0.066;
+  if (e < 134600) return 3086.05 + (e - 103600) * 0.088;
+  if (e < 176000) return 5814.05 + (e - 134600) * 0.11;
+  if (e < 755200) return 10368.05 + (e - 176000) * 0.132;
+  return 86848.05 + (e - 755200) * 0.115;
+}
+function bundessteuerVerheiratet(e) {
+  if (e < 30800) return 0;
+  if (e < 50900) return (e - 30800) * 0.01;
+  if (e < 58400) return 201 + (e - 50900) * 0.02;
+  if (e < 75300) return 351 + (e - 58400) * 0.03;
+  if (e < 90300) return 858 + (e - 75300) * 0.04;
+  if (e < 103400) return 1458 + (e - 90300) * 0.05;
+  if (e < 114700) return 2113 + (e - 103400) * 0.06;
+  if (e < 124200) return 2791 + (e - 114700) * 0.07;
+  if (e < 131700) return 3456 + (e - 124200) * 0.08;
+  if (e < 137300) return 4056 + (e - 131700) * 0.09;
+  if (e < 141200) return 4560 + (e - 137300) * 0.10;
+  if (e < 143100) return 4950 + (e - 141200) * 0.11;
+  if (e < 145000) return 5159 + (e - 143100) * 0.12;
+  if (e < 895800) return 5387 + (e - 145000) * 0.13;
+  return 102991 + (e - 895800) * 0.115;
 }
 
-function calcSparen(){
-  const S0=+document.getElementById('s-start').value,r=+document.getElementById('s-rate').value,p=+document.getElementById('s-zins').value/100/12,n=+document.getElementById('s-jahre').value*12,inf=+document.getElementById('s-inflation').value/100;
-  let K=S0;for(let i=0;i<n;i++)K=K*(1+p)+r;
-  const ein=S0+r*n,gew=K-ein,Kreal=K/Math.pow(1+inf,n/12);
-  document.getElementById('s-end').textContent=chf0(K);
-  document.getElementById('s-real').textContent=chf0(Kreal);
-  document.getElementById('s-eingezahlt').textContent=chf0(ein);
-  document.getElementById('s-gewinn').textContent=chf0(gew);
-  document.getElementById('s-bar').style.width=(ein/K*100).toFixed(1)+'%';
-  document.getElementById('s-result').classList.add('show');
+// ========================================================================
+// TAB 1: NETTOLOHN - RENDER
+// ========================================================================
+function berechneLohn() {
+  const r = calcLohn();
+  const jNetto = r.netto * 12;
+  const svJahr = r.jBrutto - jNetto;
+
+  $('lo-brutto').textContent = CHFc(r.monBrutto);
+  $('lo-ahv').textContent = '−' + CHFc(r.ahv);
+  $('lo-alv').textContent = '−' + CHFc(r.alv);
+  $('lo-alvsol').textContent = r.alvSol > 0 ? '−' + CHFc(r.alvSol) : '–';
+  $('lo-bvg').textContent = '−' + CHFc(r.bvg);
+  $('lo-bvg-pct').textContent = '(' + (r.altersGS * 100) + '% AG)';
+  $('lo-nbu').textContent = '−' + CHFc(r.nbu);
+  $('lo-netto').textContent = CHFc(r.netto);
+
+  const isB = $('lohn-ausweis').value === 'b';
+  $('lo-row-qst').style.display = isB ? '' : 'none';
+  $('lo-qst').textContent = '−' + CHFc(r.qst);
+
+  $('lo-jahres-netto').textContent = CHF(jNetto);
+  $('lo-jahres-sub').textContent = 'aus ' + CHF(r.jBrutto) + ' brutto';
+  $('lo-jahres-sv').textContent = CHF(svJahr);
+
+  // Steuern
+  let st = { bund: 0, kantons: 0, gemeinde: 0, kirche: 0, kindAbzug: 0, ersparnis3a: 0, total: 0 };
+  if (!isB) {
+    st = berechneSteuern(jNetto, r.jBrutto);
+  }
+  $('st-total').textContent = isB ? 'Bereits via QST' : CHF(st.total);
+  $('st-monat').textContent = isB ? '–' : CHF(st.total / 12);
+  $('st-effektiv').textContent = isB ? CHF(r.netto) : CHF(r.netto - st.total / 12);
+  $('st-saetze').textContent = isB ? 'B-Ausweis: Quellensteuer' : KANTONE[$('lohn-kanton').value].name;
+
+  $('st-bund').textContent = isB ? '–' : CHF(st.bund);
+  $('st-kanton').textContent = isB ? '–' : CHF(st.kantons);
+  $('st-gemeinde').textContent = isB ? '–' : CHF(st.gemeinde);
+  $('st-kirche-v').textContent = CHF(st.kirche);
+  $('st-row-kirche').style.display = (val('lohn-kirche') === 1 && !isB) ? '' : 'none';
+  $('st-kind').textContent = '−' + CHF(st.kindAbzug);
+  $('st-3a').textContent = '−' + CHF(st.ersparnis3a);
+
+  // Charts
+  renderLohnCharts(r, st, isB);
+  // Szenarien
+  renderLohnSzenarien(r, st, isB);
 }
 
-function calcBudget(){
-  const ein=+document.getElementById('b-ein').value;
-  const items=[{id:'b-miete',label:'🏠 Wohnen'},{id:'b-food',label:'🛒 Lebensmittel'},{id:'b-trans',label:'🚗 Mobilität'},{id:'b-vers',label:'🛡️ Versicherungen'},{id:'b-komm',label:'📱 Kommunikation'},{id:'b-frei',label:'🎉 Freizeit'},{id:'b-steuer',label:'🏦 Steuern'}];
-  const vals=items.map(i=>({...i,v:+document.getElementById(i.id).value}));
-  const gesamt=vals.reduce((s,i)=>s+i.v,0),uebrig=ein-gesamt,sq=uebrig/ein;
-  document.getElementById('b-ausgaben').textContent=chf0(gesamt);
-  document.getElementById('b-uebrig').textContent=chf0(Math.max(0,uebrig));
-  document.getElementById('b-sparq').textContent=sq>0?pct(sq):'⚠️ Defizit!';
-  document.getElementById('b-bars').innerHTML=vals.map(i=>`<div class="bar-wrap" style="margin-bottom:10px"><div class="bar-labels"><span>${i.label}</span><span>${chf0(i.v)} (${(i.v/ein*100).toFixed(0)}%)</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,i.v/ein*100).toFixed(1)}%;background:var(--red);opacity:.7"></div></div></div>`).join('');
-  document.getElementById('b-result').classList.add('show');
+function renderLohnCharts(r, st, isB) {
+  // Donut: Brutto-Aufteilung
+  const sv = r.ahv + r.alv + r.alvSol + r.bvg + r.nbu + r.qst;
+  chart('chart-lohn-donut', {
+    type: 'doughnut',
+    data: {
+      labels: ['Netto ausbezahlt', 'AHV/ALV', 'BVG', 'NBU + QST'],
+      datasets: [{
+        data: [r.netto, r.ahv + r.alv + r.alvSol, r.bvg, r.nbu + r.qst],
+        backgroundColor: [COLORS.accent2, COLORS.accent, COLORS.warn, COLORS.danger],
+        borderWidth: 0,
+      }],
+    },
+    options: { plugins: { legend: { position: 'bottom' } }, cutout: '60%' },
+  });
+
+  // Waterfall: Brutto → Netto → nach Steuern
+  const nachSt = isB ? r.netto : r.netto - st.total / 12;
+  chart('chart-lohn-waterfall', {
+    type: 'bar',
+    data: {
+      labels: ['Bruttolohn', '− Sozialabzüge', '= Netto', '− Steuern', '= Effektiv'],
+      datasets: [{
+        data: [r.monBrutto, -sv, r.netto, -(st.total/12), nachSt],
+        backgroundColor: [COLORS.accent, COLORS.danger, COLORS.accent2, COLORS.warn, COLORS.primary],
+        borderRadius: 6,
+      }],
+    },
+    options: {
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => CHF(c.parsed.y) } } },
+      scales: { y: { ticks: { callback: v => CHF(v) } } },
+    },
+  });
 }
 
-// ── 13. MONATSLOHN ────────────────────────────────
-let hat13 = false;
-function set13(val) {
-  hat13 = val;
-  const base = 'flex:1;padding:10px;border-radius:8px;border:1.5px solid;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .15s;';
-  const on   = base + 'background:#e63946;color:#fff;border-color:#e63946;';
-  const off  = base + 'background:#f8fafc;color:#94a3b8;border-color:#e8edf3;';
-  document.getElementById('btn-13-ja').setAttribute('style',    val  ? on : off);
-  document.getElementById('btn-13-nein').setAttribute('style', !val ? on : off);
-}
-set13(false);
+function renderLohnSzenarien(r, st, isB) {
+  const box = $('lohn-szenarien');
+  box.innerHTML = '';
+  const baseNetto = isB ? r.netto * 12 : r.netto * 12 - st.total;
 
-kSlider(); calcKredit();
+  const szenarien = [
+    { typ: 'pessimistic', titel: '📉 Lohnreduktion −10%', faktor: 0.9, hinweis: 'Restrukturierung / Teilzeit auf 90%' },
+    { typ: 'base', titel: '📊 Status Quo', faktor: 1.0, hinweis: 'Aktuelle Eingaben' },
+    { typ: 'optimistic', titel: '📈 Lohnerhöhung +8%', faktor: 1.08, hinweis: 'Beförderung / Job-Wechsel' },
+  ];
+
+  szenarien.forEach(s => {
+    const newBrutto = val('lohn-brutto') * s.faktor;
+    const oldVal = $('lohn-brutto').value;
+    $('lohn-brutto').value = newBrutto;
+    const r2 = calcLohn();
+    const st2 = isB ? { total: 0 } : berechneSteuern(r2.netto * 12, r2.jBrutto);
+    const eff = isB ? r2.netto * 12 : r2.netto * 12 - st2.total;
+    $('lohn-brutto').value = oldVal;
+
+    const diff = eff - baseNetto;
+    const card = document.createElement('div');
+    card.className = 'scenario-card ' + s.typ;
+    card.innerHTML = `
+      <h4>${s.titel}</h4>
+      <div class="big">${CHF(eff)}</div>
+      <div class="sub">Effektiv netto / Jahr</div>
+      <div style="margin-top:8px; font-size:13px; color:${diff >= 0 ? 'var(--c-positive)' : 'var(--c-danger)'}; font-weight:700">
+        ${diff >= 0 ? '+' : ''}${CHF(diff)} vs. Basis
+      </div>
+      <div class="sub" style="margin-top:4px">${s.hinweis}</div>
+    `;
+    box.appendChild(card);
+  });
+}
+
+// ========================================================================
+// TAB 2: KREDIT / HYPOTHEK
+// ========================================================================
+function annuitaet(K, iJahr, nMonate) {
+  const i = iJahr / 100 / 12;
+  if (i === 0) return K / nMonate;
+  return K * (i * Math.pow(1+i, nMonate)) / (Math.pow(1+i, nMonate) - 1);
+}
+
+function berechneKredit() {
+  const K = val('k-summe');
+  const n = val('k-laufzeit');
+  const z = val('k-zins');
+  $('k-summe-v').textContent = CHF(K);
+  $('k-laufzeit-v').textContent = n + ' Monate';
+  $('k-zins-v').textContent = z.toFixed(1) + '%';
+
+  const rate = annuitaet(K, z, n);
+  const total = rate * n;
+  const zinsen = total - K;
+
+  $('k-rate').textContent = CHFc(rate);
+  $('k-rate-sub').textContent = 'Über ' + n + ' Monate';
+  $('k-total').textContent = CHF(total);
+  $('k-zinsen').textContent = CHF(zinsen);
+  $('k-zinsen-sub').textContent = (zinsen / K * 100).toFixed(1) + '% der Kreditsumme';
+  $('k-mehr').textContent = '+' + (zinsen / K * 100).toFixed(1) + '%';
+
+  // Tilgungsplan
+  let rest = K;
+  const labels = [], schuld = [], zinsZ = [], tilgZ = [];
+  for (let m = 1; m <= n; m++) {
+    const zinsM = rest * z / 100 / 12;
+    const tilgM = rate - zinsM;
+    rest -= tilgM;
+    if (m === 1 || m % Math.max(1, Math.floor(n/24)) === 0 || m === n) {
+      labels.push('M' + m);
+      schuld.push(Math.max(0, rest));
+      zinsZ.push(zinsM);
+      tilgZ.push(tilgM);
+    }
+  }
+  chart('chart-kredit-tilgung', {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Restschuld', data: schuld, borderColor: COLORS.primary, backgroundColor: COLORS.primary + '20', fill: true, tension: 0.2 },
+    ]},
+    options: { plugins: { legend: { position: 'bottom' } }, scales: { y: { ticks: { callback: v => CHF(v) } } } },
+  });
+
+  // Vergleich Zinssätze (dedupliziert + sortiert)
+  const zinsen2 = [...new Set([3, 5, 7, +z.toFixed(1), 10, 12])].sort((a,b)=>a-b);
+  const totals = zinsen2.map(zz => annuitaet(K, zz, n) * n);
+  chart('chart-kredit-vergleich', {
+    type: 'bar',
+    data: { labels: zinsen2.map(x => x + '%'), datasets: [{
+      label: 'Gesamtrückzahlung', data: totals,
+      backgroundColor: zinsen2.map(x => Math.abs(x - z) < 0.01 ? COLORS.primary : COLORS.accent + '99'),
+      borderRadius: 6,
+    }]},
+    options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => CHF(c.parsed.y) } } }, scales: { y: { ticks: { callback: v => CHF(v) } } } },
+  });
+}
+
+// Range-Inputs sofort updaten
+['k-summe','k-laufzeit','k-zins'].forEach(id => $(id).addEventListener('input', berechneKredit));
+$('k-vorlage').addEventListener('change', e => { if (e.target.value) { $('k-zins').value = e.target.value; berechneKredit(); }});
+
+function berechneHypothek() {
+  const preis = val('h-preis');
+  const ek = val('h-ek');
+  const ekPK = val('h-ek-pk');
+  const zins = val('h-zins');
+  const eink = val('h-eink');
+  const kalkzins = val('h-kalkzins');
+  const nkPct = val('h-nk');
+
+  const hypo = preis - ek;
+  const belehnung = hypo / preis;
+  const ek_hart_pct = (ek - ekPK) / preis;
+
+  // Tragbarkeit
+  const hypo1 = preis * 0.666; // 1. Hypothek
+  const hypo2 = Math.max(0, hypo - hypo1); // 2. Hypothek
+  const amort = hypo2 / 15; // 15 Jahre
+  const kalkZinsLast = hypo * kalkzins / 100;
+  const nk = preis * nkPct / 100;
+  const last = kalkZinsLast + amort + nk;
+  const tragquote = last / eink;
+
+  // Effektiv
+  const effZins = hypo * zins / 100;
+  const effTotal = effZins + amort + nk;
+
+  $('h-belehnung').textContent = (belehnung * 100).toFixed(1) + '%';
+  $('h-belehnung-sub').textContent = CHF(hypo) + ' / ' + CHF(preis);
+  $('h-tragquote').textContent = (tragquote * 100).toFixed(1) + '%';
+  $('h-kalkzins-v').textContent = CHF(kalkZinsLast);
+  $('h-amort').textContent = CHF(amort);
+  $('h-nk-v').textContent = CHF(nk);
+  $('h-last').textContent = CHF(last);
+  $('h-effzins').textContent = CHF(effZins);
+  $('h-effamort').textContent = CHF(amort);
+  $('h-effnk').textContent = CHF(nk);
+  $('h-efftotal').textContent = CHF(effTotal);
+  $('h-effmonat').textContent = CHF(effTotal / 12);
+
+  // Ampel
+  const ampel = $('h-ampel');
+  const issues = [];
+  if (belehnung > 0.8) issues.push('❌ Belehnung > 80%: zu wenig EK');
+  if (ek_hart_pct < 0.1) issues.push('❌ Hartes EK < 10%: zu viel aus PK bezogen');
+  if (tragquote > 0.33) issues.push('❌ Tragbarkeit > 33%: Bank wird ablehnen');
+
+  if (issues.length === 0) {
+    ampel.className = 'kpi-card success';
+    $('h-ampel-status').textContent = '✅ Finanzierung tragbar';
+    $('h-ampel-text').textContent = 'Belehnung, hartes EK und Tragbarkeit erfüllt.';
+  } else if (issues.length === 1) {
+    ampel.className = 'kpi-card warn';
+    $('h-ampel-status').textContent = '⚠️ Knapp';
+    $('h-ampel-text').textContent = issues.join(' · ');
+  } else {
+    ampel.className = 'kpi-card danger';
+    $('h-ampel-status').textContent = '🚫 Nicht tragbar';
+    $('h-ampel-text').textContent = issues.join(' · ');
+  }
+
+  // Charts
+  chart('chart-hypo-struktur', {
+    type: 'doughnut',
+    data: {
+      labels: ['Eigenkapital hart', 'Eigenkapital aus PK', '1. Hypothek (66.6%)', '2. Hypothek'],
+      datasets: [{
+        data: [ek - ekPK, ekPK, Math.min(hypo, hypo1), hypo2],
+        backgroundColor: [COLORS.accent2, COLORS.warn, COLORS.accent, COLORS.primary],
+        borderWidth: 0,
+      }],
+    },
+    options: { plugins: { legend: { position: 'bottom' } } },
+  });
+
+  const sensZinsenUniq = [...new Set([0.5, 1.0, 1.5, 2.0, +zins.toFixed(2), 3.0, 4.0, 5.0])].sort((a,b)=>a-b);
+  const sensTotal = sensZinsenUniq.map(zz => hypo * zz / 100 + amort + nk);
+  chart('chart-hypo-sens', {
+    type: 'line',
+    data: {
+      labels: sensZinsenUniq.map(x => x + '%'),
+      datasets: [{
+        label: 'Jährliche Wohnkosten', data: sensTotal,
+        borderColor: COLORS.primary, backgroundColor: COLORS.primary + '30', fill: true, tension: 0.2, pointRadius: 5,
+        pointBackgroundColor: sensZinsenUniq.map(x => Math.abs(x - zins) < 0.01 ? COLORS.primary : '#fff'),
+        pointBorderColor: COLORS.primary, pointBorderWidth: 2,
+      }],
+    },
+    options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => CHF(c.parsed.y) } } }, scales: { y: { ticks: { callback: v => CHF(v) } } } },
+  });
+
+  // Hypothek-Szenarien
+  const box = $('hypo-szenarien');
+  box.innerHTML = '';
+  [
+    { typ: 'optimistic', titel: 'Zinsen bleiben tief (Ø 1.0%)', z: 1.0 },
+    { typ: 'base', titel: 'Status Quo (' + zins + '%)', z: zins },
+    { typ: 'pessimistic', titel: 'Zinsanstieg (Ø 3.5%)', z: 3.5 },
+  ].forEach(s => {
+    const total15 = (hypo * s.z / 100 + amort + nk) * 15;
+    const card = document.createElement('div');
+    card.className = 'scenario-card ' + s.typ;
+    card.innerHTML = `
+      <h4>${s.titel}</h4>
+      <div class="big">${CHF(total15)}</div>
+      <div class="sub">Total Wohnkosten 15 Jahre</div>
+      <div style="margin-top:8px; font-size:13px">~ ${CHF((hypo * s.z / 100 + amort + nk) / 12)} / Monat</div>
+    `;
+    box.appendChild(card);
+  });
+}
+$('h-vorlage').addEventListener('change', e => { if (e.target.value) { $('h-zins').value = e.target.value; berechneHypothek(); }});
+
+// ========================================================================
+// TAB 3: MIETE
+// ========================================================================
+function berechneMiete() {
+  const eink = val('m-eink');
+  const netto = val('m-netto');
+  const nk = val('m-nk');
+  const brutto = netto + nk;
+  const verbleibend = eink - brutto;
+  const quote = brutto / eink;
+  const kautMt = val('m-kaution');
+  const sparMt = val('m-spar');
+  const kautTotal = netto * kautMt;
+  const kautMonat = kautTotal / sparMt;
+
+  $('m-bruttom').textContent = CHF(brutto);
+  $('m-verbleibend').textContent = CHF(verbleibend);
+  $('m-quote').textContent = (quote * 100).toFixed(1) + '%';
+  $('m-quote-sub').textContent = quote <= 0.33 ? '✅ Tragbar (≤ 33%)' : '⚠️ Über Drittels-Regel';
+  $('m-kaut-total').textContent = CHF(kautTotal);
+  $('m-kaut-sub').textContent = 'Spare ' + CHF(kautMonat) + '/Mt über ' + sparMt + ' Monate';
+
+  $('m-jm').textContent = CHF(netto * 12);
+  $('m-jnk').textContent = CHF(nk * 12);
+  const jTotal = (netto + nk) * 12 + 380 + 1200;
+  $('m-jtotal').textContent = CHF(jTotal);
+
+  // Donut Wohnkosten
+  chart('chart-miete-donut', {
+    type: 'doughnut',
+    data: {
+      labels: ['Nettomiete', 'Nebenkosten akonto', 'Versicherungen', 'Strom/Serafe'],
+      datasets: [{
+        data: [netto, nk, 380/12, 1200/12],
+        backgroundColor: [COLORS.primary, COLORS.warn, COLORS.accent, COLORS.muted],
+        borderWidth: 0,
+      }],
+    },
+    options: { plugins: { legend: { position: 'bottom' } } },
+  });
+
+  // Miete vs Kauf
+  const kp = val('m-kaufpreis');
+  const jahre = val('m-jahre');
+  const mietStg = val('m-mietstg') / 100;
+  const immoStg = val('m-immostg') / 100;
+  const ekKauf = kp * 0.2;
+  const hypoBetrag = kp - ekKauf;
+  const hypoZins = 1.5; // Annahme
+  const unterhalt = kp * 0.01;
+  const opportunitaet = ekKauf * 0.03; // entgangene Rendite
+
+  const labels = [], mietK = [], kaufK = [];
+  let mKum = 0, kKum = 0;
+  for (let j = 1; j <= jahre; j++) {
+    const jMiete = brutto * 12 * Math.pow(1 + mietStg, j-1);
+    mKum += jMiete;
+    const jHypoZins = hypoBetrag * hypoZins / 100;
+    const jUnterhalt = unterhalt * Math.pow(1 + immoStg, j-1);
+    kKum += jHypoZins + jUnterhalt + opportunitaet;
+    labels.push('J' + j);
+    mietK.push(mKum);
+    kaufK.push(kKum);
+  }
+  // Wertsteigerung Immo am Ende subtrahieren als "Gewinn"
+  const wertEnde = kp * Math.pow(1 + immoStg, jahre) - kp;
+  const kaufNetto = kaufK.map(k => k - (wertEnde * (kaufK.indexOf(k)+1) / jahre));
+
+  chart('chart-miete-vs-kauf', {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Miete kumuliert', data: mietK, borderColor: COLORS.primary, backgroundColor: COLORS.primary + '20', fill: false, tension: 0.2 },
+      { label: 'Kauf (Zins+Unterhalt+Opp.)', data: kaufK, borderColor: COLORS.accent, backgroundColor: COLORS.accent + '20', fill: false, tension: 0.2 },
+      { label: 'Kauf netto (mit Wertsteigerung)', data: kaufNetto, borderColor: COLORS.accent2, borderDash: [4,4], fill: false, tension: 0.2 },
+    ]},
+    options: { plugins: { legend: { position: 'bottom' } }, scales: { y: { ticks: { callback: v => CHF(v) } } } },
+  });
+
+  // Szenarien
+  const box = $('miete-szenarien');
+  box.innerHTML = '';
+  [
+    { typ: 'optimistic', titel: 'Referenzzins sinkt (−5% Miete)', f: 0.95 },
+    { typ: 'base', titel: 'Status Quo', f: 1.0 },
+    { typ: 'pessimistic', titel: 'Mietzins steigt (+10%)', f: 1.10 },
+  ].forEach(s => {
+    const neu = brutto * s.f;
+    const card = document.createElement('div');
+    card.className = 'scenario-card ' + s.typ;
+    card.innerHTML = `
+      <h4>${s.titel}</h4>
+      <div class="big">${CHF(neu)}</div>
+      <div class="sub">Bruttomiete / Monat</div>
+      <div style="margin-top:8px; font-size:13px">Wohnkostenquote: ${((neu / eink) * 100).toFixed(1)}%</div>
+    `;
+    box.appendChild(card);
+  });
+}
+
+// ========================================================================
+// TAB 4: SPAREN
+// ========================================================================
+function zinseszinsFV(K0, R, iJahr, jahre) {
+  const i = iJahr / 100 / 12;
+  const n = jahre * 12;
+  if (i === 0) return K0 + R * n;
+  return K0 * Math.pow(1+i, n) + R * (Math.pow(1+i, n) - 1) / i;
+}
+
+function berechneSparen() {
+  const K0 = val('s-start');
+  const R = val('s-rate');
+  const z = val('s-rendite');
+  const j = val('s-jahre');
+  const inf = val('s-inflation');
+
+  const nominal = zinseszinsFV(K0, R, z, j);
+  const real = nominal / Math.pow(1 + inf/100, j);
+  const ein = K0 + R * 12 * j;
+  const gewinn = nominal - ein;
+
+  $('s-end-nom').textContent = CHF(nominal);
+  $('s-end-nom-sub').textContent = 'Nach ' + j + ' Jahren';
+  $('s-end-real').textContent = CHF(real);
+  $('s-ein').textContent = CHF(ein);
+  $('s-ein-sub').textContent = CHF(R) + '/Mt × ' + (12*j) + ' + Startkapital';
+  $('s-gewinn').textContent = CHF(gewinn);
+  $('s-gewinn-sub').textContent = (gewinn / ein * 100).toFixed(0) + '% Rendite auf Eingezahltes';
+
+  // Linie
+  const labels = [], nomData = [], realData = [], einData = [];
+  for (let y = 0; y <= j; y++) {
+    labels.push('J' + y);
+    const v = zinseszinsFV(K0, R, z, y);
+    nomData.push(v);
+    realData.push(v / Math.pow(1+inf/100, y));
+    einData.push(K0 + R * 12 * y);
+  }
+  chart('chart-sparen-line', {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Endkapital nominal', data: nomData, borderColor: COLORS.accent, backgroundColor: COLORS.accent + '20', fill: true, tension: 0.2 },
+      { label: 'Endkapital real', data: realData, borderColor: COLORS.accent2, backgroundColor: COLORS.accent2 + '20', fill: false, tension: 0.2 },
+      { label: 'Eingezahlt', data: einData, borderColor: COLORS.muted, borderDash: [4,4], fill: false },
+    ]},
+    options: { plugins: { legend: { position: 'bottom' } }, scales: { y: { ticks: { callback: v => CHF(v) } } } },
+  });
+
+  // Vergleich Renditen
+  const vorgaben = [{l:'Sparkonto 1%', r:1}, {l:'3a 1.5%', r:1.5}, {l:'ETF 5%', r:5}, {l:'Aktien 7%', r:7}];
+  chart('chart-sparen-vergleich', {
+    type: 'line',
+    data: {
+      labels: Array.from({length: j+1}, (_,y) => 'J' + y),
+      datasets: vorgaben.map((v, i) => ({
+        label: v.l,
+        data: Array.from({length: j+1}, (_,y) => zinseszinsFV(K0, R, v.r, y)),
+        borderColor: COLORS.palette[i],
+        backgroundColor: 'transparent', tension: 0.2,
+      })),
+    },
+    options: { plugins: { legend: { position: 'bottom' } }, scales: { y: { ticks: { callback: v => CHF(v) } } } },
+  });
+
+  // Szenarien
+  const box = $('sparen-szenarien');
+  box.innerHTML = '';
+  [
+    { typ: 'pessimistic', titel: '🐻 Bear (−2pp Rendite)', d: -2 },
+    { typ: 'base', titel: '🐂 Base', d: 0 },
+    { typ: 'optimistic', titel: '🚀 Bull (+2pp Rendite)', d: +2 },
+  ].forEach(s => {
+    const v = zinseszinsFV(K0, R, Math.max(0, z+s.d), j);
+    const card = document.createElement('div');
+    card.className = 'scenario-card ' + s.typ;
+    card.innerHTML = `
+      <h4>${s.titel}</h4>
+      <div class="big">${CHF(v)}</div>
+      <div class="sub">Endkapital bei ${(z+s.d).toFixed(1)}% Rendite</div>
+      <div style="margin-top:8px; font-size:13px; color:${s.d>=0?'var(--c-positive)':'var(--c-danger)'}; font-weight:700">
+        ${s.d>=0?'+':''}${CHF(v - nominal)} vs. Basis
+      </div>
+    `;
+    box.appendChild(card);
+  });
+}
+$('s-vorlage').addEventListener('change', e => { $('s-rendite').value = e.target.value; berechneSparen(); });
+
+// Säule 3a
+function berechne3a() {
+  const R = val('a3-rate');
+  const j = val('a3-jahre');
+  const grenz = val('a3-kanton');
+  const rendite = val('a3-rendite');
+  const bezugSt = val('a3-bezug') / 100;
+
+  const ein = R * j;
+  // 3a wächst mit Rendite, vereinfachte jährliche Verzinsung
+  let brutto = 0;
+  for (let i = 0; i < j; i++) {
+    brutto = (brutto + R) * (1 + rendite/100);
+  }
+  const ersparnis = R * grenz * j;
+  const bezugsteuer = brutto * bezugSt;
+  const nettoVorteil = ersparnis - bezugsteuer;
+
+  $('a3-brutto').textContent = CHF(brutto);
+  $('a3-brutto-sub').textContent = 'Eingezahlt: ' + CHF(ein);
+  $('a3-spar').textContent = CHF(ersparnis);
+  $('a3-bezugsteuer').textContent = '−' + CHF(bezugsteuer);
+  $('a3-netto').textContent = CHF(nettoVorteil);
+
+  // 3a vs. freies Sparen (gleicher Betrag, freies Sparen aber jährlich versteuert)
+  const labels = [], data3a = [], dataFrei = [];
+  let v3a = 0, vF = 0;
+  for (let y = 0; y <= j; y++) {
+    if (y > 0) {
+      v3a = (v3a + R) * (1 + rendite/100);
+      // Frei: Einzahlung gleich, aber jährlicher Steuerabzug auf Rendite (vereinfacht 20%)
+      vF = (vF + R) * (1 + rendite/100 * 0.8);
+    }
+    labels.push('J' + y);
+    data3a.push(v3a);
+    dataFrei.push(vF);
+  }
+  chart('chart-3a-vergleich', {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Säule 3a (steuerprivilegiert)', data: data3a, borderColor: COLORS.accent2, backgroundColor: COLORS.accent2 + '20', fill: true, tension: 0.2 },
+      { label: 'Freies Sparen (gleicher Betrag)', data: dataFrei, borderColor: COLORS.muted, fill: false, tension: 0.2 },
+    ]},
+    options: { plugins: { legend: { position: 'bottom' } }, scales: { y: { ticks: { callback: v => CHF(v) } } } },
+  });
+}
+
+// Sparziel
+function berechneZiel() {
+  const ziel = val('z-ziel');
+  const start = val('z-start');
+  const j = val('z-jahre');
+  const z = val('z-rendite');
+  const i = z / 100 / 12;
+  const n = j * 12;
+  // PMT = (FV - K0 * (1+i)^n) / ((((1+i)^n - 1)/i))
+  const startWert = start * Math.pow(1+i, n);
+  let R;
+  if (i === 0) R = (ziel - start) / n;
+  else R = (ziel - startWert) / ((Math.pow(1+i, n) - 1) / i);
+  if (R < 0) R = 0;
+
+  const eigen = start + R * n;
+  const zins = ziel - eigen;
+
+  $('z-rate').textContent = CHF(R);
+  $('z-rate-sub').textContent = 'Über ' + j + ' Jahre bei ' + z + '%';
+  $('z-eigen').textContent = CHF(eigen);
+  $('z-zins').textContent = CHF(zins);
+
+  const labels = [], data = [];
+  let v = start;
+  for (let m = 0; m <= n; m++) {
+    if (m > 0) v = v * (1+i) + R;
+    if (m % 12 === 0) { labels.push('J' + (m/12)); data.push(v); }
+  }
+  chart('chart-ziel-line', {
+    type: 'line',
+    data: { labels, datasets: [{ label: 'Vermögensaufbau', data, borderColor: COLORS.accent, backgroundColor: COLORS.accent + '30', fill: true, tension: 0.2 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => CHF(v) } } } },
+  });
+}
+
+// ========================================================================
+// TAB 5: BUDGET
+// ========================================================================
+function berechneBudget() {
+  const ein = val('b-lohn1') + val('b-lohn2') + val('b-zulagen') + val('b-sonstige');
+
+  const cats = {
+    'Wohnen':       val('b-wohn') + val('b-nk') + val('b-strom') + val('b-hausrat'),
+    'Versicherung': val('b-kk') + val('b-kk-k') + val('b-3a') + val('b-vers'),
+    'Food/Drogerie':val('b-food') + val('b-drog'),
+    'Mobilität':    val('b-oev') + val('b-auto'),
+    'Kommunikation':val('b-mobile') + val('b-abo'),
+    'Lifestyle':    val('b-frei') + val('b-ferien'),
+    'Steuern':      val('b-steuer'),
+    'Sonstiges':    val('b-misc'),
+  };
+  const aus = Object.values(cats).reduce((a,b)=>a+b, 0);
+  const saldo = ein - aus;
+  const sparquote = ein > 0 ? saldo / ein : 0;
+
+  $('b-einnahmen').textContent = CHF(ein);
+  $('b-ausgaben').textContent = CHF(aus);
+  $('b-aus-sub').textContent = (aus / ein * 100).toFixed(1) + '% des Einkommens';
+  $('b-saldo').textContent = CHF(saldo);
+  $('b-saldo-sub').textContent = saldo >= 0 ? '✅ Sparpotenzial' : '⚠️ Defizit';
+  $('b-sparquote').textContent = (sparquote * 100).toFixed(1) + '%';
+
+  // 50/30/20
+  const fix = cats['Wohnen'] + cats['Versicherung'] + cats['Steuern'];
+  const lifestyle = cats['Food/Drogerie'] + cats['Mobilität'] + cats['Kommunikation'] + cats['Lifestyle'] + cats['Sonstiges'];
+  const sparen = val('b-3a') + Math.max(0, saldo);
+  $('b-50').textContent = CHF(fix) + ' (' + (fix/ein*100).toFixed(0) + '%)';
+  $('b-30').textContent = CHF(lifestyle) + ' (' + (lifestyle/ein*100).toFixed(0) + '%)';
+  $('b-20').textContent = CHF(sparen) + ' (' + (sparen/ein*100).toFixed(0) + '%)';
+
+  // Empfehlung
+  let empf = '';
+  if (sparquote >= 0.2) empf = '🎉 Hervorragende Sparquote – mehr als 20%. Investiere überschüssige Mittel in 3a (max. CHF 7\'258/Jahr) oder ETFs.';
+  else if (sparquote >= 0.1) empf = '👍 Gute Sparquote. Prüfe Optimierungspotenzial bei Versicherungen (KK-Vergleich), Abos und Mobilität.';
+  else if (sparquote >= 0) empf = '⚠️ Sparquote unter 10%. Identifiziere die grösste Kategorie und versuche, sie um 10–15% zu senken.';
+  else empf = '🚨 Du gibst mehr aus als du verdienst. Sofortiger Handlungsbedarf: Fixkosten prüfen, Abos kündigen, Versicherungen vergleichen.';
+  $('b-empfehlung').textContent = empf;
+
+  // Donut
+  chart('chart-budget-donut', {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(cats),
+      datasets: [{ data: Object.values(cats), backgroundColor: COLORS.palette, borderWidth: 0 }],
+    },
+    options: { plugins: { legend: { position: 'bottom' } } },
+  });
+
+  // 50/30/20 Bar
+  chart('chart-budget-503020', {
+    type: 'bar',
+    data: {
+      labels: ['Fixkosten', 'Lifestyle', 'Sparen'],
+      datasets: [
+        { label: 'Soll (50/30/20)', data: [ein*0.5, ein*0.3, ein*0.2], backgroundColor: COLORS.muted + '90', borderRadius: 6 },
+        { label: 'Ist', data: [fix, lifestyle, sparen], backgroundColor: [COLORS.primary, COLORS.warn, COLORS.accent2], borderRadius: 6 },
+      ],
+    },
+    options: { plugins: { legend: { position: 'bottom' } }, scales: { y: { ticks: { callback: v => CHF(v) } } } },
+  });
+
+  // Cashflow 12 Monate (zeigt auch Steuer-Spike falls Steuern als Jahres-Rücklage berücksichtigt)
+  const monate = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  const cf = monate.map(() => saldo);
+  // 13. ML im November
+  cf[10] += val('b-lohn1') + val('b-lohn2');
+  let kum = 0;
+  const kumData = cf.map(c => (kum += c, kum));
+  chart('chart-budget-cashflow', {
+    type: 'bar',
+    data: {
+      labels: monate,
+      datasets: [
+        { type: 'bar', label: 'Monats-Saldo', data: cf, backgroundColor: cf.map(c => c >= 0 ? COLORS.accent2 : COLORS.danger), borderRadius: 6 },
+        { type: 'line', label: 'Kumulativ', data: kumData, borderColor: COLORS.primary, backgroundColor: COLORS.primary + '20', fill: false, tension: 0.2 },
+      ],
+    },
+    options: { plugins: { legend: { position: 'bottom' } }, scales: { y: { ticks: { callback: v => CHF(v) } } } },
+  });
+
+  // Szenarien
+  const box = $('budget-szenarien');
+  box.innerHTML = '';
+  [
+    { typ: 'pessimistic', titel: 'KK-Prämie +6%', d: cats['Versicherung'] * 0.06 * -1 + 0, key: 'KK steigt' },
+    { typ: 'base', titel: 'Status Quo', d: 0, key: 'Aktuell' },
+    { typ: 'optimistic', titel: 'Versicherungen optimieren (−10%)', d: cats['Versicherung'] * 0.1, key: 'Vergleich' },
+  ].forEach(s => {
+    const neuSaldo = saldo + s.d;
+    const neuSparquote = neuSaldo / ein;
+    const card = document.createElement('div');
+    card.className = 'scenario-card ' + s.typ;
+    card.innerHTML = `
+      <h4>${s.titel}</h4>
+      <div class="big">${CHF(neuSaldo)}</div>
+      <div class="sub">Neuer Monats-Saldo</div>
+      <div style="margin-top:8px; font-size:13px">Sparquote: ${(neuSparquote * 100).toFixed(1)}%</div>
+    `;
+    box.appendChild(card);
+  });
+}
+
+// ========================================================================
+// INIT - alles initial berechnen
+// ========================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  berechneLohn();
+  berechneKredit();
+  berechneHypothek();
+  berechneMiete();
+  berechneSparen();
+  berechne3a();
+  berechneZiel();
+  berechneBudget();
+});
+
 </script>
+
 </body>
 </html>
